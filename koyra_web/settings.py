@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 from pathlib import Path
 import os
 
+from django.templatetags.static import static
 from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -156,6 +157,13 @@ UNFOLD = {
     "SHOW_VIEW_ON_SITE": True,
     "THEME": None,  # laisse l'utilisateur choisir clair / sombre
     "BORDER_RADIUS": "8px",
+    "DASHBOARD_CALLBACK": "catalogue.dashboard.dashboard_callback",
+    "STYLES": [
+        lambda request: static("admin/css/koyra-unfold.css"),
+    ],
+    "LOGIN": {
+        "redirect_after": lambda request: reverse_lazy("admin:index"),
+    },
     "COLORS": {
         "base": {
             "50": "252 250 246",
@@ -232,6 +240,7 @@ UNFOLD = {
                         "title": "Messages de contact",
                         "icon": "mail",
                         "link": reverse_lazy("admin:catalogue_messagecontact_changelist"),
+                        "badge": "catalogue.dashboard.badge_messages_non_traites",
                     },
                 ],
             },

@@ -1,0 +1,74 @@
+{% extends 'admin/base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="koyra-dash">
+
+    <div class="koyra-dash__head">
+        <div>
+            <h1 class="koyra-dash__title">Bonjour, {{ request.user.get_short_name|default:request.user.username }}</h1>
+            <p class="koyra-dash__subtitle">Vue d'ensemble du catalogue Koyra Distribution — {{ koyra_now|date:"l j F Y" }}</p>
+        </div>
+    </div>
+
+    <div class="koyra-kpi-grid">
+        {% for kpi in koyra_kpis %}
+            <a href="{{ kpi.url }}" class="koyra-kpi{% if kpi.accent %} koyra-kpi--accent{% endif %}">
+                <span class="koyra-kpi__icon material-symbols-outlined">{{ kpi.icon }}</span>
+                <span class="koyra-kpi__label">{{ kpi.label }}</span>
+                <span class="koyra-kpi__value">{{ kpi.value }}</span>
+                <span class="koyra-kpi__sub">{{ kpi.sous_titre }}</span>
+            </a>
+        {% endfor %}
+    </div>
+
+    <div class="koyra-panels">
+        <section class="koyra-card koyra-card--chart">
+            <header class="koyra-card__head">
+                <h2>Produits par marque</h2>
+                <span class="koyra-card__hint">Top 8</span>
+            </header>
+            <div class="koyra-chart">
+                {% include "unfold/components/chart/bar.html" with data=koyra_chart options=koyra_chart_options height=260 %}
+            </div>
+        </section>
+
+        <section class="koyra-card koyra-card--list">
+            <header class="koyra-card__head">
+                <h2>Messages récents</h2>
+                <a class="koyra-card__hint" href="{% url 'admin:catalogue_messagecontact_changelist' %}">Tout voir</a>
+            </header>
+            <ul class="koyra-msg-list">
+                {% for m in koyra_recent_messages %}
+                    <li>
+                        <a href="{% url 'admin:catalogue_messagecontact_change' m.pk %}">
+                            <span class="koyra-msg__dot{% if m.traite %} is-done{% endif %}"></span>
+                            <span class="koyra-msg__main">
+                                <span class="koyra-msg__name">{{ m.nom }}</span>
+                                <span class="koyra-msg__subject">{{ m.sujet }}</span>
+                            </span>
+                            <span class="koyra-msg__date">{{ m.date_envoi|date:"j M" }}</span>
+                        </a>
+                    </li>
+                {% empty %}
+                    <li class="koyra-msg-list__empty">Aucun message pour le moment.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+
+    <div class="flex flex-col lg:flex-row lg:gap-8">
+        <div class="grow">
+            {% include "unfold/helpers/app_list_default.html" %}
+        </div>
+        {% include "unfold/helpers/history.html" %}
+    </div>
+</div>
+{% endblock %}

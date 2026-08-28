@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 from pathlib import Path
 import os
 
+from django.urls import reverse_lazy
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,7 +34,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -138,30 +142,116 @@ MAILERS = {
     },
 }
 
-JAZZMIN_SETTINGS = {
-    "site_title": "Administration Koyra",
-    "site_header": "Koyra Distribution",
-    "site_brand": "Koyra Admin",
-    "welcome_sign": "Bienvenue dans l'espace de gestion de Koyra Distribution",
-    "copyright": "Koyra Distribution",
-    "search_model": ["catalogue.Produit", "catalogue.Marque"],
-    "show_sidebar": True,
-    "changeform_format": "horizontal_tabs",
-}
-
-JAZZMIN_UI_TWEAKS = {
-    "theme": "minty",
-    "dark_mode_theme": None,
-    "navbar": "navbar-white navbar-light",
-    "sidebar": "sidebar-light-success",
-    "brand_colour": "navbar-success",
-    "accent": "accent-success",
-    "button_classes": {
-        "primary": "btn-success",
-        "secondary": "btn-outline-success",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success"
-    }
+# -----------------------------------------------------------------------------
+# Django Unfold - interface d'administration premium
+# https://unfoldadmin.com/docs/
+# -----------------------------------------------------------------------------
+UNFOLD = {
+    "SITE_TITLE": "Administration Koyra",
+    "SITE_HEADER": "Koyra Distribution",
+    "SITE_SUBHEADER": "Espace de gestion",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "eco",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "THEME": None,  # laisse l'utilisateur choisir clair / sombre
+    "BORDER_RADIUS": "8px",
+    "COLORS": {
+        "base": {
+            "50": "252 250 246",
+            "100": "247 243 236",
+            "200": "237 243 236",
+            "300": "214 209 199",
+            "400": "161 156 145",
+            "500": "115 110 99",
+            "600": "82 78 69",
+            "700": "63 60 52",
+            "800": "41 39 34",
+            "900": "26 25 22",
+            "950": "17 16 14",
+        },
+        "primary": {
+            "50": "243 247 242",
+            "100": "226 236 224",
+            "200": "198 218 193",
+            "300": "157 191 149",
+            "400": "109 156 98",
+            "500": "74 125 63",
+            "600": "55 99 47",
+            "700": "46 90 39",
+            "800": "36 74 32",
+            "900": "28 58 26",
+            "950": "21 50 21",
+        },
+        "font": {
+            "subtle-light": "115 110 99",
+            "subtle-dark": "161 156 145",
+            "default-light": "63 60 52",
+            "default-dark": "237 243 236",
+            "important-light": "26 25 22",
+            "important-dark": "252 250 246",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": "Catalogue",
+                "separator": True,
+                "collapsible": False,
+                "items": [
+                    {
+                        "title": "Tableau de bord",
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                    {
+                        "title": "Marques",
+                        "icon": "storefront",
+                        "link": reverse_lazy("admin:catalogue_marque_changelist"),
+                    },
+                    {
+                        "title": "Catégories",
+                        "icon": "category",
+                        "link": reverse_lazy("admin:catalogue_categorie_changelist"),
+                    },
+                    {
+                        "title": "Produits",
+                        "icon": "inventory_2",
+                        "link": reverse_lazy("admin:catalogue_produit_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": "Relation client",
+                "separator": True,
+                "collapsible": False,
+                "items": [
+                    {
+                        "title": "Messages de contact",
+                        "icon": "mail",
+                        "link": reverse_lazy("admin:catalogue_messagecontact_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": "Administration",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Utilisateurs",
+                        "icon": "person",
+                        "link": reverse_lazy("admin:auth_user_changelist"),
+                    },
+                    {
+                        "title": "Groupes",
+                        "icon": "group",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
+                    },
+                ],
+            },
+        ],
+    },
 }

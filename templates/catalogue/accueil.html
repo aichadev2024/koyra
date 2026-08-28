@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil - Koyra Distribution{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+        <h2>L'Art de Vivre <span>Naturel</span></h2>
+        <p>L'excellence des produits agroalimentaires et cosmétiques locaux, minutieusement conçus. Une harmonie parfaite entre la nature, la tradition, et votre quotidien.</p>
+        <div style="display:flex; justify-content:center; gap: 1rem; flex-wrap:wrap;">
+            <a href="{% url 'catalogue:liste_produits' %}" class="btn btn-primary">Découvrir les Collections</a>
+            <a href="{% url 'catalogue:a_propos' %}" class="btn btn-outline" style="border-color:var(--vert-fonce); color:var(--vert-fonce);">Notre Histoire</a>
+        </div>
+    </div>
+</section>
+
+<section class="marques-section container section-padding">
+    <div class="section-header text-center">
+        <h2>Nos Marques Exclusives</h2>
+        <p>Découvrez nos gammes naturelles haut de gamme pensées spécifiquement pour vous sublimer au quotidien.</p>
+    </div>
+    <div class="grid-layout">
+        {% for marque in marques %}
+        <div class="card marque-card">
+            {% if marque.bientot_disponible %}
+                <span class="badge badge-warning">Bientôt disponible</span>
+            {% endif %}
+            
+            <div class="card-img-wrapper" style="aspect-ratio: 16/9;"> <!-- Wider for brands -->
+                {% if marque.image %}
+                    <img src="{{ marque.image.url }}" alt="{{ marque.nom }}" class="card-img">
+                {% else %}
+                    <div class="placeholder-img">{{ marque.nom|first }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="card-body">
+                <span class="category-tag">{{ marque.get_secteur_display }}</span>
+                <h3>{{ marque.nom }}</h3>
+                <a href="{% url 'catalogue:fiche_marque' marque.slug %}" class="btn btn-outline" style="margin-top: 1.5rem; padding: 0.7rem 1.5rem;">Entrer dans l'univers</a>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center" style="grid-column: 1 / -1; font-size: 1.2rem; color:var(--brun);">Les nouvelles marques arrivent très prochainement.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="produits-vedettes-section section-padding bg-light">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2>Éditions Spéciales</h2>
+            <p>Notre sélection du moment pour sublimer vos repas et votre bien-être corporel avec authenticité.</p>
+        </div>
+        <div class="grid-layout">
+            {% for produit in produits_vedettes %}
+            <div class="card produit-card">
+                <div class="card-img-wrapper">
+                    {% if produit.image %}
+                        <img src="{{ produit.image.url }}" alt="{{ produit.nom }}" class="card-img">
+                    {% else %}
+                        <div class="placeholder-img">KD</div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <span class="category-tag">{{ produit.categorie.marque.nom }} - {{ produit.categorie.nom }}</span>
+                    <h3>{{ produit.nom }}</h3>
+                    {% if produit.variante %}
+                        <p class="variante">{{ produit.variante }}</p>
+                    {% endif %}
+                    <a href="{% url 'catalogue:fiche_produit' produit.slug %}" class="btn btn-secondary" style="margin-top: auto; width:100%; padding:0.8rem;">Découvrir</a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center" style="grid-column: 1 / -1; font-size: 1.2rem; font-style:italic;">Les produits vedettes seront bientôt mis en ligne.</p>
+            {% endfor %}
+        </div>
+        <div class="text-center" style="margin-top: 5rem;">
+            <a href="{% url 'catalogue:liste_produits' %}" class="btn btn-primary" style="padding:1.2rem 3.5rem;">Explorer tout le catalogue</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

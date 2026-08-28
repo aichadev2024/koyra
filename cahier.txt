@@ -1,0 +1,291 @@
+
+CAHIER DES CHARGES
+Site vitrine — Koyra Distribution
+Développement d'un site Django de présentation des produits
+Champ
+Détail
+Client
+Koyra Distribution (contact : Belém)
+Rédigé par
+DIARRASSOUBA Aicha
+Date
+28 août 2026
+Version
+1.1 — volet cosmétique précisé
+Technologie retenue
+Python / Django
+
+Sommaire
+TOC \h \o "1-2"
+
+
+1. Présentation du projet
+1.1 Contexte
+Koyra Distribution est une entreprise spécialisée dans la production et la distribution de produits alimentaires et cosmétiques naturels. À ce jour, l'entreprise ne dispose d'aucune présence en ligne : les clients potentiels ne peuvent pas découvrir ses produits en dehors du bouche-à-oreille ou d'une rencontre physique.
+Ce document formalise les besoins exprimés par la cliente afin de servir de référence tout au long du développement du site, réalisé en binôme (Aicha au clavier, guidée pas à pas).
+1.2 L'entreprise et ses marques
+Koyra Distribution regroupe plusieurs marques, organisées en deux volets :
+Koyra Alimentaire (volet agroalimentaire), qui comprend :
+Koyra Fakoye — gamme de produits à préciser ultérieurement.
+Koyra Épices — épices, condiments et poudres naturelles :
+Gamme Soumbala : déclinée en 4 versions — Sauce, Marinade, Épicé, Pur
+Piment
+Épices Woudjilah
+Céleri
+Bouillon naturel
+Poudre de poisson
+Koyra Cosmétique (volet cosmétiques naturels), qui comprend :
+SORHAYA — gamme pensée pour la peau noire, qui traite aussi les dermatoses (lancée en 2019).
+GHALIYA — gamme plus haut de gamme (premium).
+
+Le volet cosmétique n'est pas la priorité du moment : la cliente se concentre actuellement sur les produits alimentaires, le temps de finaliser sa formation et de développer elle-même ses préparations. Les gammes SORHAYA et GHALIYA seront intégrées au site dans un second temps.
+
+1.3 Objectifs du projet
+Donner à Koyra Distribution une vitrine en ligne présentant l'entreprise et l'ensemble de ses marques/produits.
+Permettre à toute personne de consulter le catalogue de produits, avec descriptions et (à terme) photos.
+Permettre à la cliente (ou à sa sœur) de contacter facilement l'entreprise via un formulaire.
+Donner à la gérante les moyens de mettre à jour elle-même les produits (textes, photos, disponibilité) sans dépendre d'un développeur, via un espace d'administration simple.
+Servir de premier projet Django concret pour Aicha, développé étape par étape.
+2. Public cible et besoins
+Utilisateur
+Besoin
+Client / prospect
+Découvrir les marques et produits Koyra, obtenir des informations, contacter l'entreprise.
+Gérante (Belém)
+Mettre à jour les produits (ajout, modification, photo, disponibilité) sans coder ; consulter les messages reçus.
+Développeuse (Aicha)
+Disposer d'un projet structuré, compréhensible et évolutif, qu'elle a codé elle-même.
+3. Périmètre fonctionnel
+3.1 Pages publiques du site
+Page
+Contenu / rôle
+Accueil
+Message d'accueil, présentation rapide, mise en avant des marques et de quelques produits.
+Nos produits
+Liste de tous les produits disponibles, avec un filtre par marque.
+Fiche marque
+Détail d'une marque (ex. Koyra Épices) et de ses gammes/catégories.
+Fiche catégorie
+Détail d'une gamme (ex. Gamme Soumbala) et de ses produits.
+Fiche produit
+Nom, variante, description, photo, disponibilité, et suggestions d'autres produits de la même gamme.
+À propos
+Présentation de l'entreprise Koyra Distribution et de ses marques.
+Contact
+Coordonnées de l'entreprise et formulaire de contact.
+3.2 Formulaire de contact
+Un visiteur doit pouvoir envoyer un message (nom, email, téléphone facultatif, sujet, message). Le message est enregistré et consultable par la gérante depuis l'espace d'administration. Aucun envoi d'e-mail automatique n'est prévu dans cette première version.
+3.3 Espace d'administration
+Un espace protégé par mot de passe (fourni nativement par Django) doit permettre à la gérante de :
+Ajouter, modifier ou retirer une marque, une catégorie/gamme ou un produit.
+Ajouter une photo à un produit, une catégorie ou une marque.
+Marquer un produit comme disponible ou non.
+Marquer une marque comme « bientôt disponible » (ex. Koyra Cosmétique, en attendant les détails).
+Consulter les messages envoyés depuis le formulaire de contact.
+3.4 Hors périmètre (première version)
+Vente en ligne / paiement.
+Comptes clients.
+Multilingue (le site sera en français uniquement).
+Envoi automatique d'e-mails.
+4. Arborescence du site
+Accueil (/)
+Nos produits (/produits/)
+Fiche marque (/marque/<marque>/)
+Fiche catégorie (/categorie/<categorie>/)
+Fiche produit (/produit/<produit>/)
+À propos (/a-propos/)
+Contact (/contact/)
+Administration (/admin/)
+5. Modèle de données
+Quatre entités principales structurent le site. Ce modèle sera construit ensemble, une entité à la fois, lors des premières séances de code.
+5.1 Marque
+Une marque de Koyra Distribution (ex. Koyra Fakoye, Koyra Épices).
+Champ
+Type
+Rôle
+nom
+Texte court
+Nom de la marque
+slug
+Texte court (auto)
+Identifiant utilisé dans l'URL
+secteur
+Choix
+Agroalimentaire / Cosmétique naturelle
+description
+Texte long
+Présentation de la marque
+image
+Image
+Photo/logo de la marque
+bientot_disponible
+Oui/Non
+Affiche un badge « bientôt disponible »
+ordre
+Nombre
+Ordre d'affichage
+5.2 Catégorie (gamme)
+Une gamme de produits au sein d'une marque (ex. Gamme Soumbala, Piment…).
+Champ
+Type
+Rôle
+marque
+Lien vers Marque
+Marque à laquelle appartient la gamme
+nom
+Texte court
+Nom de la gamme
+slug
+Texte court (auto)
+Identifiant utilisé dans l'URL
+description
+Texte long
+Présentation de la gamme
+image
+Image
+Photo de la gamme
+ordre
+Nombre
+Ordre d'affichage
+5.3 Produit
+Un produit ou une variante au sein d'une catégorie (ex. Soumbala — Pur).
+Champ
+Type
+Rôle
+categorie
+Lien vers Catégorie
+Gamme à laquelle appartient le produit
+nom
+Texte court
+Nom du produit
+slug
+Texte court (auto)
+Identifiant utilisé dans l'URL
+variante
+Texte court
+Ex. Sauce, Marinade, Épicé, Pur
+description
+Texte long
+Description du produit
+image
+Image
+Photo du produit
+disponible
+Oui/Non
+Visible ou non sur le site
+ordre
+Nombre
+Ordre d'affichage
+5.4 Message de contact
+Champ
+Type
+Rôle
+nom
+Texte court
+Nom de l'expéditeur
+email
+Email
+Adresse de réponse
+telephone
+Texte court
+Téléphone (facultatif)
+sujet
+Texte court
+Sujet du message
+message
+Texte long
+Contenu du message
+date_envoi
+Date/heure (auto)
+Horodatage de l'envoi
+traite
+Oui/Non
+Suivi interne du traitement
+6. Choix techniques
+Élément
+Choix
+Langage
+Python 3
+Framework web
+Django (dernière version stable)
+Base de données (développement)
+SQLite (fournie avec Django, aucune installation à part)
+Gestion des images
+Pillow (nécessaire pour les champs image de Django)
+Gabarits (templates)
+Templates Django (HTML + langage de gabarit Django)
+Style
+CSS simple, sans framework externe, écrit à la main
+Administration
+Django Admin (interface fournie nativement par Django)
+Environnement
+Environnement virtuel Python (venv)
+7. Charte graphique
+Palette inspirée des produits naturels et du terroir :
+Couleur
+Usage
+Code
+Vert Koyra
+Couleur principale (en-tête, boutons, accents)
+#3F6B3F
+Vert foncé
+Titres, pied de page
+#294A29
+Terracotta
+Boutons d'action, accents chauds
+#C4622D
+Crème
+Fond de page
+#FAF5EC
+Brun
+Texte principal
+#4A3A2C
+Typographie : police sans-serif standard (ex. Segoe UI / Helvetica), pas de logo officiel fourni à ce stade — un espace réservé (initiale de la marque) est utilisé en attendant.
+8. Contraintes et prérequis
+Site entièrement en français.
+Doit rester simple à maintenir par une personne non-développeuse (interface d'administration claire).
+Aucune photo de produit n'est disponible à ce stade : le site doit fonctionner proprement avec ou sans photo (espace réservé si absente).
+Coordonnées définitives (email, téléphone, adresse) à fournir par la cliente avant mise en ligne.
+Hébergement non choisi à ce stade — le site sera d'abord développé et testé en local.
+9. Plan de réalisation — étapes de développement
+Déroulé prévu des séances de code, chaque étape construite ensemble avant de passer à la suivante :
+Étape
+Titre
+Contenu
+1
+Préparation de l'environnement
+Installer Python, créer un environnement virtuel, installer Django, vérifier que tout fonctionne.
+2
+Création du projet Django
+Générer le projet et l'application « catalogue », comprendre l'arborescence générée.
+3
+Modèle de données
+Écrire les modèles Marque, Catégorie, Produit, Message de contact ; créer et appliquer les migrations.
+4
+Espace d'administration
+Déclarer les modèles dans l'admin ; créer un compte administrateur ; saisir les premières marques/produits.
+5
+Pages publiques (vues + URLs)
+Construire les vues Accueil, Liste des produits, Fiche marque/catégorie/produit.
+6
+Gabarits et mise en page
+Créer le template de base, la navigation, le pied de page, puis les pages une à une.
+7
+Formulaire de contact
+Créer le formulaire, la vue de traitement, l'enregistrement des messages.
+8
+Mise en forme (CSS)
+Habiller le site avec la charte graphique définie ci-dessus.
+9
+Tests et vérifications
+Parcourir toutes les pages, tester le formulaire, corriger les anomalies.
+10
+Mise en ligne (optionnel)
+Choisir un hébergeur, sécuriser la configuration, publier le site.
+10. Évolutions futures possibles
+Ajouter au site les gammes cosmétiques SORHAYA et GHALIYA (descriptions, produits, photos) lorsque la cliente sera prête.
+Ajouter les vraies photos des produits.
+Ajouter une recherche de produits.
+Envoi d'un e-mail automatique à la réception d'un message de contact.
+Traduction du site (ex. anglais).
+Vente en ligne, si le besoin se confirme.

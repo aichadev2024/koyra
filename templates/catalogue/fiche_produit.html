@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}{{ produit.nom }} - Koyra Distribution{% endblock %}
+
+{% block content %}
+<section class="page-header section-padding text-center bg-light">
+    <div class="container">
+        <h2>{{ produit.nom }}</h2>
+        {% if produit.variante %}<p class="variante" style="font-size:1.5rem; margin-top:0.5rem; opacity:0.9;">{{ produit.variante }}</p>{% endif %}
+    </div>
+</section>
+
+<section class="section-padding container" style="margin-top: -6rem; position:relative; background:var(--blanc); border-radius:12px; box-shadow:var(--shadow-soft); z-index:10; border:1px solid rgba(0,0,0,0.03); padding: 4rem;">
+    <div style="display:flex; gap: 4rem; align-items:stretch; flex-wrap:wrap;">
+        <div style="flex:1; min-width:350px;">
+            <div class="card-img-wrapper" style="border-radius:8px; box-shadow:var(--shadow-card); aspect-ratio:4/5;">
+                {% if produit.image %}
+                    <img src="{{ produit.image.url }}" alt="{{ produit.nom }}" class="card-img">
+                {% else %}
+                    <div class="placeholder-img">{{ produit.nom|first }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div style="flex:1.2; min-width:350px; display:flex; flex-direction:column; justify-content:center;">
+            <span class="category-tag"><a href="{% url 'catalogue:fiche_categorie' produit.categorie.slug %}">{{ produit.categorie.nom }}</a></span>
+            <h3 style="font-size: 2.5rem; margin-bottom:1.5rem; letter-spacing:-0.5px;">L'Essence du Produit</h3>
+            <p style="white-space: pre-line; line-height: 1.9; font-size:1.15rem; margin-bottom: 3rem; color:var(--brun);">{{ produit.description|default:"La description de ce produit arrive bientôt." }}</p>
+            
+            <div style="padding: 1.5rem; background: var(--lumiere-vert); border-left: 4px solid var(--vert-fonce); margin-bottom: 3rem;">
+                <p style="font-size:1.1rem; margin:0;"><strong>Disponibilité:</strong> <span style="color: {% if produit.disponible %}var(--vert-fonce){% else %}var(--terracotta){% endif %}; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-left:10px;">{% if produit.disponible %}Stock disponible{% else %}Rupture provisoire{% endif %}</span></p>
+            </div>
+            
+            <a href="{% url 'catalogue:contact' %}?sujet=Information sur le produit {{ produit.nom }}" class="btn btn-primary" style="align-self:flex-start; padding: 1rem 3rem;">Demander des informations</a>
+        </div>
+    </div>
+
+    {% if suggestions %}
+    <div style="margin-top: 8rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 6rem;">
+        <div class="section-header text-center">
+            <h2>Dans la même gamme</h2>
+            <p>Découvrez d'autres produits de la collection {{ produit.categorie.nom }}</p>
+        </div>
+        <div class="grid-layout">
+            {% for sug in suggestions %}
+            <div class="card produit-card">
+                <div class="card-img-wrapper">
+                    {% if sug.image %}
+                        <img src="{{ sug.image.url }}" alt="{{ sug.nom }}" class="card-img">
+                    {% else %}
+                        <div class="placeholder-img">KD</div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <span class="category-tag">{{ sug.categorie.nom }}</span>
+                    <h3>{{ sug.nom }}</h3>
+                    {% if sug.variante %}
+                        <p class="variante">{{ sug.variante }}</p>
+                    {% endif %}
+                    <a href="{% url 'catalogue:fiche_produit' sug.slug %}" class="btn btn-secondary" style="margin-top:auto; width:100%; padding:0.8rem;">Détails</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

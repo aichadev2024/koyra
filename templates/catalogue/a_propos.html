@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}À Propos - Koyra Distribution{% endblock %}
+
+{% block content %}
+<section class="page-header section-padding text-center bg-light">
+    <div class="container">
+        <h2>Notre Histoire</h2>
+        <p>L'excellence <span>Koyra Distribution</span></p>
+    </div>
+</section>
+
+<section class="section-padding container" style="margin-top: -6rem; position:relative; background:var(--blanc); border-radius:12px; box-shadow:var(--shadow-soft); z-index:10; border:1px solid rgba(0,0,0,0.03); padding: 5rem 4rem;">
+    
+    <div style="max-width:900px; margin: 0 auto; text-align:center; margin-bottom: 6rem;">
+        <p style="font-size:1.4rem; line-height: 1.8; color:var(--brun); font-family:var(--font-heading); font-style:italic;">
+            "Koyra Distribution est une entreprise spécialisée dans la production et la distribution de produits alimentaires et cosmétiques naturels, pensée pour mettre en valeur les richesses de nos terroirs avec des standards de qualité irréprochables."
+        </p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:5rem; max-width:1000px; margin:0 auto;">
+        
+        <div style="display:flex; gap:3rem; align-items:center; flex-wrap:wrap;">
+            <div style="flex:1; min-width:300px; background:var(--lumiere-vert); padding:3rem; border-radius:8px;">
+                <h3 style="color:var(--vert-fonce); font-size:2.5rem; margin-bottom:1.5rem;">Koyra <span style="color:var(--or-doux); font-style:italic;">Alimentaire</span></h3>
+                <p style="font-size:1.15rem; line-height:1.8; margin-bottom:1.5rem;">
+                    Notre pôle agroalimentaire se veut être la référence des produits authentiques de notre région.
+                </p>
+                <ul style="list-style-type: none; margin:0; padding:0; display:flex; flex-direction:column; gap:1rem;">
+                    <li style="padding-left:1.5rem; position:relative;">
+                        <span style="position:absolute; left:0; color:var(--or-doux);">•</span> <strong>Koyra Fakoye</strong> : L'authenticité à l'état pur.
+                    </li>
+                    <li style="padding-left:1.5rem; position:relative;">
+                        <span style="position:absolute; left:0; color:var(--or-doux);">•</span> <strong>Koyra Épices</strong> : Épices, condiments et poudres naturelles (Gamme Soumbala déclinée en 4 versions, Piment, Épices Woudjilah, Céleri, Bouillon naturel, Poudre de poisson...).
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="display:flex; gap:3rem; align-items:center; flex-wrap:wrap; flex-direction:row-reverse;">
+            <div style="flex:1; min-width:300px; background:var(--creme); padding:3rem; border-radius:8px; border:1px solid rgba(0,0,0,0.05); position:relative;">
+                <span class="badge badge-warning" style="position:absolute; top:2rem; right:2rem;">En développement</span>
+                <h3 style="color:var(--vert-fonce); font-size:2.5rem; margin-bottom:1.5rem;">Koyra <span style="color:var(--terracotta); font-style:italic;">Cosmétique</span></h3>
+                <p style="font-size:1.15rem; line-height:1.8; margin-bottom:1.5rem;">
+                    Notre pôle dédié propose des produits cosmétiques naturels spécialement pensés pour sublimer la peau noire.
+                </p>
+                <ul style="list-style-type: none; margin:0; padding:0; display:flex; flex-direction:column; gap:1rem;">
+                    <li style="padding-left:1.5rem; position:relative;">
+                        <span style="position:absolute; left:0; color:var(--terracotta);">•</span> <strong>SORHAYA</strong> : Lancée en 2019, cette gamme traite également les dermatoses, redonnant éclat et santé à votre peau.
+                    </li>
+                    <li style="padding-left:1.5rem; position:relative;">
+                        <span style="position:absolute; left:0; color:var(--terracotta);">•</span> <strong>GHALIYA</strong> : Notre gamme prestige et haut de gamme.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="text-center" style="margin-top: 6rem;">
+        <a href="{% url 'catalogue:liste_produits' %}" class="btn btn-primary" style="margin-right:1rem;">Explorer le catalogue</a>
+        <a href="{% url 'catalogue:contact' %}" class="btn btn-outline">Nous écrire</a>
+    </div>
+</section>
+{% endblock %}

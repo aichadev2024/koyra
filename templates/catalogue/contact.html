@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Contact - Koyra Distribution{% endblock %}
+
+{% block content %}
+<section class="page-header section-padding text-center bg-light">
+    <div class="container">
+        <h2>Contactez-nous</h2>
+        <p>Une question ? Une remarque ? Écrivez-nous, nous répondrons avec grand plaisir.</p>
+    </div>
+</section>
+
+<section class="contact-section container" style="margin-top: -6rem; margin-bottom: 8rem; position:relative; z-index:10;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 3rem;">
+        
+        <div style="background:var(--vert-fonce); color:var(--creme); padding: 4rem; border-radius:12px; box-shadow:var(--shadow-soft);">
+            <h3 style="color:var(--or-doux); font-size:2.5rem; margin-bottom:2rem;">Nos Coordonnées</h3>
+            <p style="margin-bottom: 3rem; font-size:1.15rem; line-height:1.8;">Koyra Distribution est toujours à votre écoute pour vous fournir des produits locaux de la meilleure qualité qui soit.</p>
+            
+            <div style="margin-bottom: 2rem; font-size:1.1rem; display:flex; flex-direction:column; gap:0.5rem;">
+                <strong style="color:var(--or-doux); text-transform:uppercase; font-size:0.85rem; letter-spacing:1px;">Appelez-nous</strong>
+                <span>+223 (À DÉFINIR)</span>
+            </div>
+            <div style="margin-bottom: 2rem; font-size:1.1rem; display:flex; flex-direction:column; gap:0.5rem;">
+                <strong style="color:var(--or-doux); text-transform:uppercase; font-size:0.85rem; letter-spacing:1px;">Écrivez-nous</strong>
+                <span>contact@koyradistribution.com</span>
+            </div>
+            <div style="margin-bottom: 2rem; font-size:1.1rem; display:flex; flex-direction:column; gap:0.5rem;">
+                <strong style="color:var(--or-doux); text-transform:uppercase; font-size:0.85rem; letter-spacing:1px;">Rendez-nous visite</strong>
+                <span>Bamako, Mali (Siège)</span>
+            </div>
+        </div>
+
+        <div class="contact-form-container" style="border-radius:12px;">
+            <h3 style="margin-bottom: 2rem; font-size:2.2rem;">Envoyez un Message</h3>
+            <form method="POST" action="{% url 'catalogue:contact' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="nom">Nom complet <span style="color:var(--terracotta)">*</span></label>
+                    <input type="text" id="nom" name="nom" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Adresse Email <span style="color:var(--terracotta)">*</span></label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="telephone">Téléphone</label>
+                    <input type="tel" id="telephone" name="telephone" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="sujet">Sujet du message <span style="color:var(--terracotta)">*</span></label>
+                    <input type="text" id="sujet" name="sujet" class="form-control" value="{{ request.GET.sujet|default:'' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Votre message <span style="color:var(--terracotta)">*</span></label>
+                    <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top:1rem;">Transmettre</button>
+            </form>
+        </div>
+        
+    </div>
+</section>
+{% endblock %}

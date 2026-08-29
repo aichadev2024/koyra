@@ -574,6 +574,10 @@ textarea.form-control {
    (bloc ajouté après coup : n'altère pas l'esprit éditorial d'origine)
    ========================================================================= */
 
+:root {
+    --or-clair: #E4CE9E; /* or plus lumineux, lisible sur fond vert foncé */
+}
+
 /* --- Confort de lecture & interactions -------------------------------- */
 html {
     scroll-behavior: smooth;
@@ -611,7 +615,41 @@ textarea:focus-visible {
 .hero-content p  { font-size: clamp(1.05rem, 0.95rem + 0.6vw, 1.35rem); }
 .section-header h2 { font-size: clamp(2rem, 1.3rem + 2.6vw, 3.5rem); }
 .page-header h2  { font-size: clamp(2.1rem, 1.4rem + 3vw, 4rem); }
-.page-header p   { font-size: clamp(1.15rem, 1rem + 0.8vw, 1.5rem); }
+
+/* Sous-titre d'en-tête : le serif italique doré était peu lisible sur une
+   phrase entière -> police courante, non italique, ton plus clair. */
+.page-header p {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-weight: 400;
+    font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.25rem);
+    line-height: 1.7;
+    color: var(--or-clair);
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.page-header p a { color: #fff; text-decoration: underline; }
+
+/* --- Formulaire de contact : champs plus visibles ------------------- */
+.form-group label {
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+    color: var(--vert-fonce);
+}
+.form-control {
+    border-bottom: 1px solid rgba(21, 50, 21, 0.28);
+    font-size: 1.05rem;
+}
+.form-control::placeholder { color: rgba(74, 62, 51, 0.5); }
+.form-control:focus,
+.form-control:focus-visible {
+    border-bottom-color: var(--vert-koyra);
+    border-bottom-width: 2px;
+}
+
+/* Panneau "Nos Coordonnées" (fond vert foncé) : libellés dorés plus clairs */
+.contact-section strong { color: var(--or-clair) !important; }
 
 /* --- Rythme vertical un peu resserré et fluide ----------------------- */
 .section-padding { padding: clamp(4rem, 2rem + 8vw, 10rem) 0; }

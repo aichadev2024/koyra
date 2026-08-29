@@ -48,7 +48,7 @@
         document.documentElement.classList.add("js-reveal");
 
         var targets = document.querySelectorAll(
-            ".section-header, .grid-layout > .card, .contact-form-container, .contact-section > div"
+            ".section-header, .grid-layout > .card"
         );
 
         var reveal = function (el) {

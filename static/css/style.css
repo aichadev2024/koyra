@@ -654,8 +654,17 @@ textarea:focus-visible {
 /* --- Rythme vertical un peu resserré et fluide ----------------------- */
 .section-padding { padding: clamp(4rem, 2rem + 8vw, 10rem) 0; }
 .section-header  { margin-bottom: clamp(2.5rem, 1rem + 5vw, 5rem); }
-.page-header     { padding: clamp(6rem, 4rem + 6vw, 8rem) 0 clamp(3.5rem, 2rem + 4vw, 5rem); }
+.page-header     { padding: clamp(6rem, 4rem + 6vw, 8rem) 0 clamp(4rem, 2.5rem + 4vw, 5.5rem); }
 .grid-layout     { gap: clamp(1.75rem, 1rem + 2.5vw, 3.5rem); }
+
+/* --- Chevauchement carte/bandeau sur les pages intérieures ----------
+   Le "margin-top: -6rem" posé en style inline tirait la carte blanche
+   PAR-DESSUS le sous-titre du bandeau (texte coupé). On neutralise :
+   la carte se pose proprement sous le bandeau, à toutes les largeurs. */
+main > section[style*="-6rem"],
+main > section[style*="- 6rem"] {
+    margin-top: clamp(1.5rem, 0.5rem + 3vw, 3rem) !important;
+}
 
 /* --- En-tête : compactage au défilement ----------------------------- */
 .main-header.is-scrolled {
@@ -779,10 +788,10 @@ html.js-reveal .reveal-ready.is-visible {
     }
     .hero-content p { margin-bottom: 2.25rem; }
 
-    /* Neutralise les grands chevauchements négatifs posés en style inline */
+    /* Padding latéral resserré sur les cartes de contenu (le décalage
+       négatif est déjà neutralisé plus haut, à toutes les largeurs) */
     main > section[style*="-6rem"],
     main > section[style*="- 6rem"] {
-        margin-top: 1.5rem !important;
         padding-left: 1.25rem !important;
         padding-right: 1.25rem !important;
     }

@@ -568,3 +568,207 @@ textarea.form-control {
     from { clip-path: inset(0 100% 0 0); }
     to { clip-path: inset(0 0 0 0); }
 }
+
+/* =========================================================================
+   FINITIONS "PRO" — raffinements globaux + responsive complet
+   (bloc ajouté après coup : n'altère pas l'esprit éditorial d'origine)
+   ========================================================================= */
+
+/* --- Confort de lecture & interactions -------------------------------- */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 110px;
+    -webkit-text-size-adjust: 100%;
+}
+
+img { max-width: 100%; height: auto; }
+
+h1, h2, h3, h4 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+::selection {
+    background: var(--or-doux);
+    color: var(--vert-fonce);
+}
+
+/* Focus visible cohérent partout */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--or-doux);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+.form-control:focus-visible { outline-offset: 0; }
+
+/* --- Typographie fluide (garde le maxi desktop, allège le mobile) ----- */
+.logo h1        { font-size: clamp(1.5rem, 1rem + 2.2vw, 2.2rem); }
+.logo h1 span   { font-size: clamp(1.25rem, 0.9rem + 1.6vw, 1.8rem); }
+.hero-content h2 { font-size: clamp(2.6rem, 1.4rem + 5.6vw, 5.5rem); }
+.hero-content p  { font-size: clamp(1.05rem, 0.95rem + 0.6vw, 1.35rem); }
+.section-header h2 { font-size: clamp(2rem, 1.3rem + 2.6vw, 3.5rem); }
+.page-header h2  { font-size: clamp(2.1rem, 1.4rem + 3vw, 4rem); }
+.page-header p   { font-size: clamp(1.15rem, 1rem + 0.8vw, 1.5rem); }
+
+/* --- Rythme vertical un peu resserré et fluide ----------------------- */
+.section-padding { padding: clamp(4rem, 2rem + 8vw, 10rem) 0; }
+.section-header  { margin-bottom: clamp(2.5rem, 1rem + 5vw, 5rem); }
+.page-header     { padding: clamp(6rem, 4rem + 6vw, 8rem) 0 clamp(3.5rem, 2rem + 4vw, 5rem); }
+.grid-layout     { gap: clamp(1.75rem, 1rem + 2.5vw, 3.5rem); }
+
+/* --- En-tête : compactage au défilement ----------------------------- */
+.main-header.is-scrolled {
+    box-shadow: 0 6px 30px rgba(21, 50, 21, 0.10);
+    background: rgba(252, 250, 246, 0.92);
+}
+.main-header.is-scrolled .header-container { padding: 0.7rem 0; }
+
+/* --- Bouton menu mobile (masqué en desktop) ------------------------- */
+.nav-toggle {
+    display: none;
+    width: 44px; height: 44px;
+    border: 1px solid rgba(46, 90, 39, 0.18);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+}
+.nav-toggle span,
+.nav-toggle span::before,
+.nav-toggle span::after {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 20px; height: 2px;
+    background: var(--vert-fonce);
+    transform: translate(-50%, -50%);
+    transition: transform .3s ease, opacity .2s ease;
+}
+.nav-toggle span::before { transform: translate(-50%, -7px); }
+.nav-toggle span::after  { transform: translate(-50%, 5px); }
+.nav-toggle[aria-expanded="true"] span { background: transparent; }
+.nav-toggle[aria-expanded="true"] span::before { transform: translate(-50%, -50%) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+
+/* --- Liseré doré au survol des cartes (cohérence avec l'admin) ------ */
+.card { position: relative; }
+.card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--vert-koyra), var(--or-doux));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .5s cubic-bezier(0.25, 1, 0.25, 1);
+    z-index: 5;
+}
+.card:hover::before { transform: scaleX(1); }
+
+/* --- Révélations au défilement (activées seulement si JS + mouvement OK) */
+html.js-reveal .reveal-ready {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity .7s cubic-bezier(0.25, 1, 0.25, 1), transform .7s cubic-bezier(0.25, 1, 0.25, 1);
+}
+html.js-reveal .reveal-ready.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* --- Respect des préférences de mouvement -------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+    .hero-content { opacity: 1; transform: none; }
+    html.js-reveal .reveal-ready { opacity: 1; transform: none; }
+}
+
+/* ========================= TABLETTE ============================== */
+@media (max-width: 1024px) {
+    .container { width: 92%; }
+    .hero-section { min-height: 70vh; padding: 9rem 0 7rem; }
+    .footer-container { gap: 3rem; }
+}
+
+/* ===================== MOBILE / PETIT ÉCRAN ===================== */
+@media (max-width: 860px) {
+    .nav-toggle { display: block; }
+
+    .header-container { position: relative; }
+
+    .main-nav {
+        position: absolute;
+        top: calc(100% + 1px);
+        left: 0;
+        right: 0;
+        background: var(--creme);
+        border-bottom: 1px solid rgba(46, 90, 39, 0.12);
+        box-shadow: 0 20px 40px rgba(21, 50, 21, 0.12);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height .35s ease;
+    }
+    .main-nav.is-open { max-height: 70vh; }
+
+    .main-nav ul {
+        flex-direction: column;
+        gap: 0;
+        padding: 0.5rem 0;
+    }
+    .main-nav li { width: 100%; }
+    .main-nav a {
+        display: block;
+        padding: 1rem 6%;
+        font-size: 1.1rem;
+    }
+    .main-nav a::after { display: none; }
+    .main-nav a:hover { background: var(--lumiere-vert); }
+
+    /* Le hero fixe est lourd sur mobile : on repasse en scroll normal */
+    .hero-section {
+        background-attachment: scroll;
+        min-height: auto;
+        padding: 7rem 0 5.5rem;
+    }
+    .hero-content p { margin-bottom: 2.25rem; }
+
+    /* Neutralise les grands chevauchements négatifs posés en style inline */
+    main > section[style*="-6rem"],
+    main > section[style*="- 6rem"] {
+        margin-top: 1.5rem !important;
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+
+    .contact-section > div { grid-template-columns: 1fr !important; }
+    .contact-form-container { padding: 2.25rem 1.5rem !important; }
+
+    .section-header { margin-bottom: 2.5rem; }
+
+    .btn { padding: 0.85rem 1.9rem; letter-spacing: 1.5px; }
+
+    .footer-container {
+        flex-direction: column;
+        gap: 2.5rem;
+        margin-bottom: 3rem;
+    }
+    .footer-brand,
+    .footer-links { min-width: 0 !important; flex: 1 1 auto !important; }
+    .main-footer { padding: 4.5rem 0 2rem; }
+}
+
+@media (max-width: 560px) {
+    .grid-layout { grid-template-columns: 1fr; }
+    .hero-content h2 { line-height: 1.1; }
+    .btn { width: 100%; }
+    .hero-content .btn { width: auto; }
+}

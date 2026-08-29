@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Koyra Distribution{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23153215'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-family='Georgia,serif' font-size='38' fill='%23FCFAF6'%3EK%3C/text%3E%3C/svg%3E">
+    <meta name="theme-color" content="#153215">
     <!-- Modern Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4.0">
 </head>
 <body>
     <header class="main-header">
@@ -19,7 +21,10 @@
                     <h1>Koyra <span>Distribution</span></h1>
                 </a>
             </div>
-            <nav class="main-nav">
+            <button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="site-nav">
+                <span></span>
+            </button>
+            <nav class="main-nav" id="site-nav">
                 <ul>
                     <li><a href="{% url 'catalogue:accueil' %}">Accueil</a></li>
                     <li><a href="{% url 'catalogue:liste_produits' %}">Catalogue</a></li>
@@ -76,5 +81,7 @@
             <p>&copy; {% now "Y" %} Koyra Distribution. Tous droits réservés. Conçu avec passion au Mali.</p>
         </div>
     </footer>
+
+    <script src="{% static 'js/site.js' %}?v=4.1" defer></script>
 </body>
 </html>

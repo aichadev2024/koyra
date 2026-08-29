@@ -666,6 +666,29 @@ main > section[style*="- 6rem"] {
     margin-top: clamp(1.5rem, 0.5rem + 3vw, 3rem) !important;
 }
 
+/* --- Sur-titre décoratif des sections d'accueil -------------------- */
+.section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--or-doux);
+    margin-bottom: 1.4rem;
+}
+.section-kicker::before,
+.section-kicker::after {
+    content: "";
+    width: 34px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.55;
+}
+.bg-light .section-kicker { color: var(--terracotta); }
+
 /* --- En-tête : compactage au défilement ----------------------------- */
 .main-header.is-scrolled {
     box-shadow: 0 6px 30px rgba(21, 50, 21, 0.10);

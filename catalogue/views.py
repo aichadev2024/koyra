@@ -6,8 +6,9 @@ def accueil(request):
     marques = Marque.objects.all()
     produits_vedettes = Produit.objects.filter(disponible=True)[:4]
     return render(request, 'catalogue/accueil.html', {
-        'marques': marques,
-        'produits_vedettes': produits_vedettes
+        'marques_agro': marques.filter(secteur='AGRO'),
+        'marques_cosm': marques.filter(secteur='COSM'),
+        'produits_vedettes': produits_vedettes,
     })
 
 def liste_produits(request):

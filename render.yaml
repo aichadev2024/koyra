@@ -1,0 +1,57 @@
+# Blueprint Render — crée le service web + la base PostgreSQL + le disque média.
+# Doc : https://render.com/docs/blueprint-spec
+databases:
+  - name: koyra-db
+    databaseName: koyra_db
+    user: koyra
+    plan: basic-256mb          # ~7 $/mois (le plan gratuit expire au bout de 30 j)
+
+services:
+  - type: web
+    name: koyra
+    runtime: python
+    plan: starter               # ~7 $/mois : le site ne s'endort pas
+    region: frankfurt
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn koyra_web.wsgi:application"
+    healthCheckPath: /
+    disk:
+      name: koyra-media
+      mountPath: /var/media      # images uploadées (marques, catégories, produits)
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: koyra-db
+          property: connectionString
+      - key: DB_SSL_REQUIRE
+        value: "true"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: MEDIA_ROOT
+        value: "/var/media"
+      - key: SECURE_SSL_REDIRECT
+        value: "true"
+      # --- E-mail (à compléter dans le dashboard Render, valeurs sensibles) ---
+      - key: EMAIL_BACKEND
+        value: "django.core.mail.backends.smtp.EmailBackend"
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: "true"
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: CONTACT_NOTIFICATION_EMAIL
+        sync: false

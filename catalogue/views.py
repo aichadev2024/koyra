@@ -1,6 +1,59 @@
-from django.shortcuts import render, get_object_or_404, redirect
+import logging
+
+from django.conf import settings
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.shortcuts import render, get_object_or_404, redirect
+
 from .models import Marque, Categorie, Produit, MessageContact
+
+logger = logging.getLogger(__name__)
+
+
+def _envoyer_emails_contact(msg):
+    """Notifie Koyra et accuse réception au visiteur. Silencieux en cas d'échec."""
+    sujet_interne = f"[Contact site] {msg.sujet}"
+    corps_interne = (
+        f"Nouveau message reçu via le formulaire de contact.\n\n"
+        f"Nom      : {msg.nom}\n"
+        f"Email    : {msg.email}\n"
+        f"Téléphone: {msg.telephone or '—'}\n"
+        f"Sujet    : {msg.sujet}\n"
+        f"Date     : {msg.date_envoi:%d/%m/%Y %H:%M}\n\n"
+        f"Message :\n{msg.message}\n"
+    )
+    try:
+        send_mail(
+            sujet_interne,
+            corps_interne,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.CONTACT_NOTIFICATION_EMAIL],
+            fail_silently=False,
+        )
+    except Exception:
+        logger.exception("Échec de l'envoi de la notification de contact")
+
+    corps_accuse = (
+        f"Bonjour {msg.nom},\n\n"
+        "Nous avons bien reçu votre message et vous remercions de votre intérêt "
+        "pour Koyra Distribution. Notre équipe vous répondra dans les plus brefs délais.\n\n"
+        "Pour rappel, voici votre message :\n"
+        f"« {msg.message} »\n\n"
+        "Bien à vous,\n"
+        "L'équipe Koyra Distribution"
+    )
+    try:
+        send_mail(
+            "Votre message a bien été reçu — Koyra Distribution",
+            corps_accuse,
+            settings.DEFAULT_FROM_EMAIL,
+            [msg.email],
+            fail_silently=True,
+        )
+    except Exception:
+        logger.exception("Échec de l'envoi de l'accusé de réception au visiteur")
 
 def accueil(request):
     marques = Marque.objects.all()
@@ -56,21 +109,42 @@ def a_propos(request):
 
 def contact(request):
     if request.method == 'POST':
-        nom = request.POST.get('nom')
-        email = request.POST.get('email')
-        telephone = request.POST.get('telephone', '')
-        sujet = request.POST.get('sujet')
-        message = request.POST.get('message')
-        
-        # Enregistrement du message
-        MessageContact.objects.create(
-            nom=nom,
-            email=email,
-            telephone=telephone,
-            sujet=sujet,
-            message=message
+        nom = (request.POST.get('nom') or '').strip()
+        email = (request.POST.get('email') or '').strip()
+        telephone = (request.POST.get('telephone') or '').strip()
+        sujet = (request.POST.get('sujet') or '').strip()
+        message = (request.POST.get('message') or '').strip()
+
+        # Honeypot anti-spam : champ caché qui doit rester vide.
+        if request.POST.get('site_web'):
+            messages.success(request, "Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.")
+            return redirect('catalogue:contact')
+
+        erreurs = []
+        if not nom or not sujet or not message:
+            erreurs.append("Merci de renseigner votre nom, le sujet et le message.")
+        try:
+            validate_email(email)
+        except ValidationError:
+            erreurs.append("L'adresse e-mail saisie n'est pas valide.")
+
+        if erreurs:
+            for err in erreurs:
+                messages.error(request, err)
+            return render(request, 'catalogue/contact.html', {
+                'valeurs': {
+                    'nom': nom, 'email': email, 'telephone': telephone,
+                    'sujet': sujet, 'message': message,
+                },
+            })
+
+        msg = MessageContact.objects.create(
+            nom=nom, email=email, telephone=telephone, sujet=sujet, message=message,
         )
-        messages.success(request, 'Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.')
+        _envoyer_emails_contact(msg)
+        messages.success(request, "Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.")
         return redirect('catalogue:contact')
 
-    return render(request, 'catalogue/contact.html')
+    return render(request, 'catalogue/contact.html', {
+        'valeurs': {'sujet': request.GET.get('sujet', '')},
+    })

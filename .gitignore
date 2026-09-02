@@ -21,6 +21,7 @@ local_settings.py
 # Environment
 .env
 .env.*
+!.env.example
 
 # Editors / OS
 .idea/

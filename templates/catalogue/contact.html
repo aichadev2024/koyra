@@ -34,25 +34,29 @@
             <h3 style="margin-bottom: 2rem; font-size:2.2rem;">Envoyez un Message</h3>
             <form method="POST" action="{% url 'catalogue:contact' %}">
                 {% csrf_token %}
+                <div class="form-group" aria-hidden="true" style="position:absolute; left:-9999px;">
+                    <label for="site_web">Ne pas remplir</label>
+                    <input type="text" id="site_web" name="site_web" tabindex="-1" autocomplete="off">
+                </div>
                 <div class="form-group">
                     <label for="nom">Nom complet <span style="color:var(--terracotta)">*</span></label>
-                    <input type="text" id="nom" name="nom" class="form-control" required>
+                    <input type="text" id="nom" name="nom" class="form-control" value="{{ valeurs.nom|default:'' }}" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Adresse Email <span style="color:var(--terracotta)">*</span></label>
-                    <input type="email" id="email" name="email" class="form-control" required>
+                    <input type="email" id="email" name="email" class="form-control" value="{{ valeurs.email|default:'' }}" required>
                 </div>
                 <div class="form-group">
                     <label for="telephone">Téléphone</label>
-                    <input type="tel" id="telephone" name="telephone" class="form-control">
+                    <input type="tel" id="telephone" name="telephone" class="form-control" value="{{ valeurs.telephone|default:'' }}">
                 </div>
                 <div class="form-group">
                     <label for="sujet">Sujet du message <span style="color:var(--terracotta)">*</span></label>
-                    <input type="text" id="sujet" name="sujet" class="form-control" value="{{ request.GET.sujet|default:'' }}" required>
+                    <input type="text" id="sujet" name="sujet" class="form-control" value="{{ valeurs.sujet|default:'' }}" required>
                 </div>
                 <div class="form-group">
                     <label for="message">Votre message <span style="color:var(--terracotta)">*</span></label>
-                    <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+                    <textarea id="message" name="message" class="form-control" rows="4" required>{{ valeurs.message|default:'' }}</textarea>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top:1rem;">Transmettre</button>
             </form>

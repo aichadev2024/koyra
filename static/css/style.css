@@ -688,6 +688,70 @@ main > section[style*="- 6rem"] {
     opacity: 0.55;
 }
 .bg-light .section-kicker { color: var(--terracotta); }
+.section-kicker + h2 { margin-top: 0.2rem; }
+
+/* =========================================================================
+   ESPACES "PREMIUM" — rythme vertical harmonisé, gouttières généreuses,
+   respiration éditoriale. (surcouche : ne touche pas aux couleurs)
+   ========================================================================= */
+:root {
+    --gutter: clamp(1.25rem, 0.5rem + 3vw, 3rem);   /* marge latérale fluide */
+    --measure: 40rem;                                /* longueur de ligne confortable (~640px) */
+    --space-section: clamp(4.5rem, 2rem + 8vw, 9rem);
+    --space-block: clamp(2.5rem, 1.2rem + 4vw, 4.5rem);
+}
+
+/* Conteneur : un peu plus large, gouttières qui ne collent jamais au bord */
+.container {
+    width: 100%;
+    max-width: 1300px;
+    padding-inline: var(--gutter);
+}
+
+/* Rythme des sections, unifié et fluide */
+.section-padding { padding: var(--space-section) 0; }
+.section-header  { margin-bottom: clamp(3rem, 1.5rem + 4vw, 5rem); }
+
+/* Sous-titres de section : mesure de lecture maîtrisée */
+.section-header p {
+    max-width: var(--measure);
+    line-height: 1.85;
+}
+
+/* Premier bloc après le héros : transition franche et posée */
+.hero-section + section { padding-top: clamp(4rem, 2rem + 6vw, 7rem); }
+
+/* --- Héros : respiration plus juste ------------------------------- */
+.hero-section {
+    padding: clamp(7rem, 4rem + 9vw, 11rem) 0 clamp(5rem, 3rem + 7vw, 9rem);
+    min-height: min(84vh, 820px);
+}
+.hero-content { max-width: 760px; }
+.hero-content h2 { margin-bottom: clamp(1.25rem, 0.8rem + 1.5vw, 2rem); }
+.hero-content p {
+    max-width: 52ch;
+    margin-inline: auto;
+    margin-bottom: clamp(2.5rem, 1.5rem + 3vw, 3.75rem);
+}
+
+/* --- Cartes : intérieur plus généreux et régulier ---------------- */
+.grid-layout { gap: clamp(1.75rem, 1rem + 2.6vw, 3.75rem); }
+.card-body {
+    padding: clamp(2rem, 1.4rem + 1.6vw, 2.75rem) clamp(1.5rem, 1rem + 1.4vw, 2.25rem);
+    gap: 0.15rem;
+}
+.card-body h3 { letter-spacing: -0.3px; }
+.card-body .category-tag { margin-bottom: 1.1rem; }
+
+/* Blocs "appel à l'action" centrés : espace au-dessus constant */
+.section-padding > .container > .text-center:last-child,
+.produits-vedettes-section .text-center:last-child {
+    margin-top: var(--space-block) !important;
+}
+
+/* --- Pied de page : rythme aligné sur le reste ------------------- */
+.main-footer { padding: var(--space-section) 0 2.5rem; }
+.footer-container { gap: clamp(2.5rem, 1.5rem + 4vw, 5rem); margin-bottom: clamp(3rem, 2rem + 3vw, 5rem); }
 
 /* --- En-tête : compactage au défilement ----------------------------- */
 .main-header.is-scrolled {

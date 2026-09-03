@@ -7,46 +7,76 @@
 <section class="page-header section-padding text-center" style="padding-bottom: 8rem;">
     <div class="container">
         <h2>La Boutique</h2>
-        <p>Retrouvez toute l'authenticité de nos gammes alimentaires et cosmétiques.</p>
+        <p>Deux univers, une même exigence : le meilleur du terroir malien, pour la table comme pour la peau.</p>
     </div>
 </section>
 
 <section class="produits-section container section-padding" style="margin-top: -6rem; position:relative; background:var(--blanc); border-radius:12px; padding-top: 4rem; box-shadow:var(--shadow-soft); z-index:10; border:1px solid rgba(0,0,0,0.03);">
-    <!-- Filtres par marque -->
-    <div class="filter-controls mb-4 text-center">
-        <a href="{% url 'catalogue:liste_produits' %}" class="btn {% if not marque_active %}btn-primary{% else %}btn-outline{% endif %}" style="padding:0.7rem 1.8rem;">Collections</a>
-        {% for marque in marques %}
-        <a href="?marque={{ marque.slug }}" class="btn {% if marque_active == marque.slug %}btn-primary{% else %}btn-outline{% endif %}" style="padding:0.7rem 1.8rem;">
-            {{ marque.nom }}
+
+    {# --- Filtre par univers --- #}
+    <div class="filter-controls text-center">
+        <a href="{% url 'catalogue:liste_produits' %}"
+           class="btn {% if not secteur_actif %}btn-primary{% else %}btn-outline{% endif %}" style="padding:0.7rem 1.8rem;">
+            Tout voir
         </a>
-        {% endfor %}
+        <a href="?secteur=AGRO"
+           class="btn {% if secteur_actif == 'AGRO' %}btn-primary{% else %}btn-outline{% endif %}" style="padding:0.7rem 1.8rem;">
+            Agroalimentaire
+        </a>
+        <a href="?secteur=COSM"
+           class="btn {% if secteur_actif == 'COSM' %}btn-primary{% else %}btn-outline{% endif %}" style="padding:0.7rem 1.8rem;">
+            Cosmétique
+        </a>
     </div>
 
-    <!-- Liste des produits -->
-    <div class="grid-layout" style="margin-top: 3rem; padding:2rem;">
-        {% for produit in produits %}
-        <div class="card produit-card">
-            <div class="card-img-wrapper">
-                {% if produit.image %}
-                    <img src="{{ produit.image.url }}" alt="{{ produit.nom }}" class="card-img">
-                {% else %}
-                    <div class="placeholder-img">KD</div>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                <span class="category-tag">{{ produit.categorie.marque.nom }} · {{ produit.categorie.nom }}</span>
-                <h3>{{ produit.nom }}</h3>
-                {% if produit.variante %}
-                    <p class="variante">{{ produit.variante }}</p>
-                {% endif %}
-                <a href="{% url 'catalogue:fiche_produit' produit.slug %}" class="btn btn-secondary" style="margin-top:auto; width: 100%; padding:0.8rem;">Détails</a>
-            </div>
+    {# --- Une section par univers --- #}
+    {% for groupe in groupes %}
+    <div class="catalogue-univers" style="margin-top: 4.5rem;">
+        <div class="section-header text-center" style="margin-bottom: 3rem;">
+            <span class="section-kicker">{{ groupe.kicker }}</span>
+            <h2>{{ groupe.libelle }}</h2>
+            <p>{{ groupe.accroche }}</p>
         </div>
-        {% empty %}
-        <div class="text-center" style="grid-column: 1 / -1; padding: 4rem;">
-            <p style="font-size:1.2rem; color:var(--brun); font-style:italic; font-family:var(--font-heading);">La beauté prend du temps, nos produits arrivent très bientôt.</p>
+
+        <div class="grid-layout">
+            {% for produit in groupe.produits %}
+            <div class="card produit-card">
+                <div class="card-img-wrapper">
+                    {% if produit.image %}
+                        <img src="{{ produit.image.url }}" alt="{{ produit.nom }}" class="card-img">
+                    {% else %}
+                        <div class="placeholder-img">KD</div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <span class="category-tag">{{ produit.categorie.marque.nom }} · {{ produit.categorie.nom }}</span>
+                    <h3>{{ produit.nom }}</h3>
+                    {% if produit.variante %}
+                        <p class="variante">{{ produit.variante }}</p>
+                    {% endif %}
+                    <a href="{% url 'catalogue:fiche_produit' produit.slug %}" class="btn btn-secondary" style="margin-top:auto; width: 100%; padding:0.8rem;">Détails</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center" style="grid-column: 1 / -1; padding: 3rem 1rem;">
+                <p style="font-size:1.15rem; color:var(--brun); font-style:italic; font-family:var(--font-heading);">
+                    {% if groupe.code == 'COSM' %}
+                        Notre gamme cosmétique arrive très bientôt.
+                    {% else %}
+                        Nos produits agroalimentaires seront en ligne très prochainement.
+                    {% endif %}
+                </p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+
+        {% if secteur_actif and groupe.produits %}
+        <div class="text-center" style="margin-top: 3rem;">
+            <a href="{% url 'catalogue:liste_produits' %}" class="btn btn-outline" style="padding:0.7rem 1.8rem;">← Revenir aux deux univers</a>
+        </div>
+        {% endif %}
     </div>
+    {% endfor %}
+
 </section>
 {% endblock %}

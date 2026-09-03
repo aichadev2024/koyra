@@ -64,19 +64,61 @@ def accueil(request):
         'produits_vedettes': produits_vedettes,
     })
 
+SECTEURS_CATALOGUE = [
+    {
+        'code': 'AGRO',
+        'libelle': 'Agroalimentaire',
+        'kicker': 'Pôle agroalimentaire',
+        'accroche': "Condiments, épices et bouillons naturels, façonnés selon les gestes du terroir malien.",
+    },
+    {
+        'code': 'COSM',
+        'libelle': 'Cosmétique',
+        'kicker': 'Pôle cosmétique',
+        'accroche': "Des soins naturels sobres et généreux, pensés pour les peaux riches en mélanine.",
+    },
+]
+
+
 def liste_produits(request):
-    produits = Produit.objects.filter(disponible=True)
+    produits = (
+        Produit.objects.filter(disponible=True)
+        .select_related('categorie', 'categorie__marque')
+    )
     marques = Marque.objects.all()
-    
-    # Filtre par marque si fourni dans GET
+
+    secteur = request.GET.get('secteur')
+    if secteur not in ('AGRO', 'COSM'):
+        secteur = None
+
     marque_slug = request.GET.get('marque')
     if marque_slug:
         produits = produits.filter(categorie__marque__slug=marque_slug)
+        # on aligne le secteur actif sur la marque choisie
+        marque = marques.filter(slug=marque_slug).first()
+        if marque:
+            secteur = marque.secteur
+
+    if secteur:
+        produits = produits.filter(categorie__marque__secteur=secteur)
+
+    produits = list(produits)
+
+    # Regroupement par univers pour l'affichage en sections distinctes
+    groupes = []
+    for info in SECTEURS_CATALOGUE:
+        if secteur and info['code'] != secteur:
+            continue
+        groupes.append({
+            **info,
+            'produits': [p for p in produits if p.categorie.marque.secteur == info['code']],
+        })
 
     return render(request, 'catalogue/liste_produits.html', {
-        'produits': produits,
+        'groupes': groupes,
         'marques': marques,
-        'marque_active': marque_slug
+        'secteur_actif': secteur,
+        'marque_active': marque_slug,
     })
 
 def fiche_marque(request, slug):

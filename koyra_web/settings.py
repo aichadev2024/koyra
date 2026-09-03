@@ -170,9 +170,20 @@ STORAGES = {
     },
 }
 
-MEDIA_URL = 'media/'
-# Sur Render, monter un disque persistant sur ce chemin (variable MEDIA_ROOT).
+MEDIA_URL = '/media/'
+# En local : dossier BASE_DIR/media. Sur un plan payant : disque persistant.
 MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(BASE_DIR, 'media'))
+
+# --- Images produits : Cloudinary si CLOUDINARY_URL est défini ---------
+# Format : cloudinary://<api_key>:<api_secret>@<cloud_name>
+# Sur l'offre gratuite de Render le disque est éphémère : sans Cloudinary
+# (ou disque payant) les images téléversées finissent par disparaître.
+CLOUDINARY_URL = os.getenv('CLOUDINARY_URL', '')
+if CLOUDINARY_URL:
+    INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
+    STORAGES['default'] = {
+        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+    }
 
 
 # Email

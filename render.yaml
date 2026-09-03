@@ -82,3 +82,9 @@ services:
       # qui casse l'URL.
       - key: ADMIN_SETUP_TOKEN
         sync: false
+
+      # --- Stockage des images produits (Cloudinary, offre gratuite) -------
+      # cloudinary://<api_key>:<api_secret>@<cloud_name>  (dashboard Cloudinary)
+      # Indispensable sur le plan gratuit : le disque de Render est éphémère.
+      - key: CLOUDINARY_URL
+        sync: false

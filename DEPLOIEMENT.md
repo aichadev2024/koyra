@@ -33,7 +33,7 @@ git push -u origin main
 ## 3. Créer les services sur Render
 
 Le fichier `render.yaml` à la racine décrit tout automatiquement. **Il est
-configuré en version gratuite** (voir §8 pour passer en production).
+configuré en version gratuite** (voir §9 pour passer en production).
 
 1. Sur Render : **New +** → **Blueprint**.
 2. Connecter GitHub si besoin, puis sélectionner le dépôt `koyra`.
@@ -105,7 +105,27 @@ Ensuite, les comptes suivants se créent depuis l'admin :
 
 ---
 
-## 6. Nom de domaine (optionnel)
+## 6. Images produits — Cloudinary (obligatoire sur l'offre gratuite)
+
+Le disque de Render (offre gratuite) est **éphémère** : les images
+téléversées disparaissent au redéploiement et à la mise en veille. On les
+stocke donc sur **Cloudinary** (offre gratuite : 25 Go, CDN).
+
+1. Créer un compte sur https://cloudinary.com (gratuit).
+2. Dashboard Cloudinary → **API Keys** → copier l'**API Environment variable**,
+   de la forme `CLOUDINARY_URL=cloudinary://123...:abc...@mon-cloud`.
+3. Render → service **koyra** → **Environment** → ajouter `CLOUDINARY_URL`
+   avec cette valeur (sans le `CLOUDINARY_URL=` devant). Save → redéploie.
+4. Dans l'admin, **re-téléverser** les images des produits déjà créés
+   (les anciennes, stockées sur le disque éphémère, sont perdues).
+
+Ensuite, tout `ImageField` est envoyé sur Cloudinary automatiquement et
+servi via son CDN. Sans `CLOUDINARY_URL`, le site sert `/media/` localement
+(utile en dev, ou sur un plan payant avec disque).
+
+---
+
+## 7. Nom de domaine (optionnel)
 
 Service **koyra** → **Settings** → **Custom Domains** → ajouter
 `www.koyradistribution.com`. Render affiche les enregistrements DNS
@@ -120,13 +140,13 @@ ALLOWED_HOSTS=.onrender.com,www.koyradistribution.com,koyradistribution.com
 
 ---
 
-## 7. Mises à jour
+## 8. Mises à jour
 
 Chaque `git push` sur `main` redéclenche un déploiement (build + migrations).
 
 ---
 
-## 8. Passer en production (formules payantes)
+## 9. Passer en production (formules payantes)
 
 À faire le jour du lancement officiel, dans `render.yaml` :
 
@@ -155,9 +175,11 @@ Voir `.env.example`. Les principales en production :
 | `ALLOWED_HOSTS` | domaines autorisés | `.onrender.com,...` |
 | `DATABASE_URL` | connexion PostgreSQL | *(généré par Render)* |
 | `DB_SSL_REQUIRE` | SSL vers la base | `true` |
-| `MEDIA_ROOT` | dossier des images | `/var/media` |
+| `CLOUDINARY_URL` | stockage des images | `cloudinary://…` (voir §6) |
+| `MEDIA_ROOT` | dossier des images (si disque payant) | `/var/media` |
 | `SECURE_SSL_REDIRECT` | forcer HTTPS | `true` |
 | `EMAIL_*`, `DEFAULT_FROM_EMAIL`, `CONTACT_NOTIFICATION_EMAIL` | envoi des e-mails | *(voir §4)* |
+| `ADMIN_SETUP_TOKEN` | page de création du 1er admin | *(voir §5)* |
 
 ---
 
@@ -183,5 +205,5 @@ dans la console (aucun envoi réel).
 | Disque média 1 Go | *(indisponible en gratuit)* | inclus ~0,25 $/mois |
 | **Total** | **0 $** | **~14 $/mois** |
 
-`render.yaml` est livré en version **gratuite**. Voir §8 pour basculer en
+`render.yaml` est livré en version **gratuite**. Voir §9 pour basculer en
 production.

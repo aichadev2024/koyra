@@ -1,0 +1,54 @@
+KIT LOGO — KOYRA DISTRIBUTION
+=============================
+
+Emblème : une graine fendue — moitié pleine = la table (agroalimentaire),
+moitié en contour d'or = la peau (cosmétique) — dans un sceau : « koyra »,
+le village qui réunit les deux.
+
+
+FICHIERS SVG  (vectoriel — à privilégier, net à toute taille, quelques Ko)
+------------------------------------------------------------------------
+  koyra-logo-horizontal.svg         Logo complet — fond clair
+  koyra-logo-horizontal-blanc.svg   Logo complet — fond sombre / photo
+  koyra-logo-vertical.svg           Logo empilé — fond clair
+  koyra-logo-vertical-blanc.svg     Logo empilé — fond sombre / photo
+  koyra-embleme.svg                 Emblème seul — fond clair
+  koyra-embleme-blanc.svg           Emblème seul — fond sombre
+  koyra-embleme-mono-vert.svg       Emblème un seul ton (vert) — tampon, gravure
+  koyra-embleme-mono-blanc.svg      Emblème un seul ton (blanc)
+  koyra-favicon.svg                 Icône sur pastille verte (onglet navigateur)
+
+FICHIERS PNG  (image, fond transparent — Word, e-mail, réseaux sociaux, aperçu)
+-----------------------------------------------------------------------------
+  koyra-logo-horizontal.png         2600 x 1144
+  koyra-logo-horizontal-blanc.png   2600 x 1144
+  koyra-logo-vertical.png           1600 x 1600
+  koyra-logo-vertical-blanc.png     1600 x 1600
+  koyra-embleme.png                 1024 x 1024
+  koyra-embleme-blanc.png           1024 x 1024
+  koyra-favicon.png                 512 x 512
+
+
+COULEURS
+--------
+  Vert forêt    #173318
+  Or doux       #C5A059
+  Blanc / crème #FCFAF6
+
+
+RÈGLES D'USAGE
+--------------
+- Fond clair (blanc, crème, papier)  ->  versions sans suffixe.
+- Fond sombre ou photo               ->  versions « -blanc ».
+- Ne pas déformer, ne pas recolorer, ne pas faire pivoter le logo.
+- Zone de protection : tout autour du logo, garder un vide égal à la moitié
+  de la hauteur de l'emblème (aucun texte ni bord dans cette zone).
+- Taille minimale : logo complet 24 mm / 130 px de large ; emblème seul 8 mm / 24 px.
+
+- Les SVG de logo complet embarquent les polices (Playfair Display + Outfit) :
+  ils s'affichent correctement SANS installer les polices, dans un navigateur
+  et dans Inkscape. Pour Adobe Illustrator, utiliser les PNG, ou demander une
+  version « texte vectorisé » (tracés, sans police).
+
+Présentation détaillée (déclinaisons, cadrage, garde-fous) : voir le lien
+d'aperçu partagé dans la conversation.

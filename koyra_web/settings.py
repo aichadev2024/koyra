@@ -196,6 +196,11 @@ CONTACT_NOTIFICATION_EMAIL = os.getenv(
     'CONTACT_NOTIFICATION_EMAIL', 'contact@koyradistribution.com'
 )
 
+# Jeton de la page d'installation /installation/<jeton>/ : elle n'est active
+# que si ce jeton est défini ET qu'aucun super-utilisateur n'existe encore.
+# Vide (défaut) => page désactivée (404).
+ADMIN_SETUP_TOKEN = os.getenv('ADMIN_SETUP_TOKEN', '')
+
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', True)

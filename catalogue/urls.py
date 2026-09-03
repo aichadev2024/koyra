@@ -11,4 +11,5 @@ urlpatterns = [
     path('produit/<slug:slug>/', views.fiche_produit, name='fiche_produit'),
     path('a-propos/', views.a_propos, name='a_propos'),
     path('contact/', views.contact, name='contact'),
+    path('installation/<str:token>/', views.installation_admin, name='installation_admin'),
 ]

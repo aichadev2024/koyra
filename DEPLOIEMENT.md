@@ -82,15 +82,24 @@ Enregistrer → Render redéploie.
 
 ---
 
-## 5. Créer le compte administrateur
+## 5. Créer le premier compte administrateur
 
-Dashboard Render → service **koyra** → onglet **Shell** :
+Via une page d'installation à usage unique (pas besoin du Shell).
 
-```bash
-python manage.py createsuperuser
-```
+1. Render → service **koyra** → onglet **Environment** → copier la valeur de
+   `ADMIN_SETUP_TOKEN` (générée automatiquement).
+2. Ouvrir `https://koyra.onrender.com/installation/<jeton>/`.
+3. Choisir un identifiant + un mot de passe → le compte est créé et la
+   session ouverte, redirection vers `/admin/`.
 
-Puis se connecter sur `https://koyra.onrender.com/admin/`.
+Cette page ne répond **que** tant qu'aucun administrateur n'existe **et** que
+le jeton est bon ; sinon elle renvoie une erreur 404. Une fois le premier
+compte créé, elle est donc automatiquement hors service.
+
+> Repli possible via le Shell : `python manage.py createsuperuser`.
+
+Ensuite, les comptes suivants se créent depuis l'admin :
+**Utilisateurs → Ajouter** (cocher « Statut équipe » + permissions *catalogue*).
 
 ---
 

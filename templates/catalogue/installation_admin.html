@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Installation — Koyra Distribution{% endblock %}
+
+{% block content %}
+<section class="page-header section-padding text-center">
+    <div class="container">
+        <h2>Compte administrateur</h2>
+        <p>Première connexion : créez le compte qui gérera le catalogue. Cette page ne s'affichera plus ensuite.</p>
+    </div>
+</section>
+
+<section class="container" style="max-width: 520px; margin-top: -6rem; margin-bottom: 8rem; position: relative; z-index: 10;">
+    <div class="contact-form-container" style="border-radius: 12px;">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small style="display:block; color:var(--brun); opacity:.7; margin-top:.5rem; line-height:1.5;">{{ field.help_text|safe }}</small>
+                {% endif %}
+                {% for err in field.errors %}
+                    <small style="display:block; color:var(--terracotta); margin-top:.5rem;">{{ err }}</small>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            {% for err in form.non_field_errors %}
+                <p style="color:var(--terracotta); margin-bottom:1rem;">{{ err }}</p>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Créer le compte &amp; se connecter</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

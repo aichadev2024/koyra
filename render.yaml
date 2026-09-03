@@ -72,3 +72,10 @@ services:
         sync: false               # ex. Koyra Distribution <...@gmail.com>
       - key: CONTACT_NOTIFICATION_EMAIL
         sync: false               # adresse qui reçoit les messages du formulaire
+
+      # --- Page d'installation du 1er compte admin -------------------------
+      # Render génère un jeton aléatoire. URL : /installation/<jeton>/
+      # (active seulement tant qu'aucun admin n'existe). À lire dans l'onglet
+      # Environment après le déploiement.
+      - key: ADMIN_SETUP_TOKEN
+        generateValue: true

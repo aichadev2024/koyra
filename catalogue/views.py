@@ -2,11 +2,15 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import login
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 
+from .forms import PremierAdminForm
 from .models import Marque, Categorie, Produit, MessageContact
 
 logger = logging.getLogger(__name__)
@@ -190,3 +194,28 @@ def contact(request):
     return render(request, 'catalogue/contact.html', {
         'valeurs': {'sujet': request.GET.get('sujet', '')},
     })
+
+
+def installation_admin(request, token):
+    """Création unique du premier compte administrateur.
+
+    Accessible seulement si : un jeton ADMIN_SETUP_TOKEN est configuré ET
+    correspond, ET qu'aucun super-utilisateur n'existe encore. Sinon : 404.
+    """
+    attendu = getattr(settings, 'ADMIN_SETUP_TOKEN', '')
+    if not attendu or token != attendu:
+        raise Http404
+    if User.objects.filter(is_superuser=True).exists():
+        raise Http404
+
+    if request.method == 'POST':
+        form = PremierAdminForm(request.POST)
+        if form.is_valid() and not User.objects.filter(is_superuser=True).exists():
+            user = form.save()
+            login(request, user)
+            logger.info("Premier compte administrateur créé : %s", user.username)
+            return redirect('admin:index')
+    else:
+        form = PremierAdminForm()
+
+    return render(request, 'catalogue/installation_admin.html', {'form': form})

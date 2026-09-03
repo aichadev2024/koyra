@@ -42,8 +42,10 @@ configuré en version gratuite** (voir §8 pour passer en production).
    - la base **koyra-db** (PostgreSQL, plan *free*)
 4. Render demande les variables marquées `sync: false` (le bloc e-mail Gmail).
    Les remplir maintenant (§4) ou laisser vide et compléter plus tard.
-5. Cliquer **Apply**. Le premier déploiement démarre (`build.sh` installe les
-   dépendances, lance `collectstatic` puis `migrate`), ~3-5 min.
+5. Cliquer **Apply**. Le premier déploiement démarre (~3-5 min) : `build.sh`
+   installe les dépendances et lance `collectstatic` ; les migrations de la
+   base tournent au démarrage du service (`startCommand`), pas pendant le
+   build (la base n'y est pas joignable sur Render).
 
 `SECRET_KEY` et `DATABASE_URL` sont générés automatiquement, rien à saisir.
 

@@ -22,7 +22,8 @@ services:
     plan: free                  # PROD : "starter" (~7 $/mois, ne s'endort pas)
     region: frankfurt
     buildCommand: "./build.sh"
-    startCommand: "gunicorn koyra_web.wsgi:application"
+    # migrate ici (runtime) : la base n'est pas joignable pendant le build.
+    startCommand: "python manage.py migrate --noinput && gunicorn koyra_web.wsgi:application"
     healthCheckPath: /
 
     # PROD : décommenter pour conserver les images uploadées (nécessite plan payant)

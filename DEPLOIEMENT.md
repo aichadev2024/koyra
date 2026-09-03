@@ -32,18 +32,29 @@ git push -u origin main
 
 ## 3. Créer les services sur Render
 
-Le fichier `render.yaml` à la racine décrit tout automatiquement.
+Le fichier `render.yaml` à la racine décrit tout automatiquement. **Il est
+configuré en version gratuite** (voir §8 pour passer en production).
 
 1. Sur Render : **New +** → **Blueprint**.
-2. Sélectionner le dépôt `koyra`.
+2. Connecter GitHub si besoin, puis sélectionner le dépôt `koyra`.
 3. Render lit `render.yaml` et propose de créer :
-   - le service web **koyra**
-   - la base **koyra-db** (PostgreSQL)
-   - le disque **koyra-media** (1 Go, pour les images)
-4. Cliquer **Apply**. Le premier déploiement démarre (`build.sh` installe les
-   dépendances, lance `collectstatic` puis `migrate`).
+   - le service web **koyra** (plan *free*)
+   - la base **koyra-db** (PostgreSQL, plan *free*)
+4. Render demande les variables marquées `sync: false` (le bloc e-mail Gmail).
+   Les remplir maintenant (§4) ou laisser vide et compléter plus tard.
+5. Cliquer **Apply**. Le premier déploiement démarre (`build.sh` installe les
+   dépendances, lance `collectstatic` puis `migrate`), ~3-5 min.
 
-`SECRET_KEY` et `DATABASE_URL` sont générés automatiquement.
+`SECRET_KEY` et `DATABASE_URL` sont générés automatiquement, rien à saisir.
+
+### Limites de la version gratuite
+
+- le site **s'endort après 15 min** sans visite (réveil ~50 s à la visite suivante)
+- la base gratuite est **supprimée au bout de 30 jours**
+- **pas de disque persistant** : les images uploadées dans l'admin disparaissent
+  à chaque redéploiement
+
+C'est fait pour **valider le rendu en ligne**, pas pour un site livré définitivement.
 
 ---
 
@@ -102,6 +113,24 @@ Chaque `git push` sur `main` redéclenche un déploiement (build + migrations).
 
 ---
 
+## 8. Passer en production (formules payantes)
+
+À faire le jour du lancement officiel, dans `render.yaml` :
+
+1. **Base** : `plan: free` → `plan: basic-256mb`.
+2. **Web** : `plan: free` → `plan: starter`.
+3. **Disque images** : décommenter le bloc `disk:` (name `koyra-media`,
+   mountPath `/var/media`, sizeGB `1`).
+4. **Media** : ajouter la variable d'env `MEDIA_ROOT = /var/media`.
+5. `git commit` + `git push` → Render applique les changements.
+
+> ⚠️ Sur le plan gratuit, les images déjà uploadées auront été perdues :
+> il faudra les re-téléverser après le passage en payant.
+
+Total après passage : **~14 $/mois** (7 web + 7 base + ~0,25 disque).
+
+---
+
 ## Variables d'environnement (référence)
 
 Voir `.env.example`. Les principales en production :
@@ -134,12 +163,12 @@ dans la console (aucun envoi réel).
 
 ## Coût indicatif Render
 
-| Ressource | Plan | Prix |
+| Ressource | Test (gratuit) | Production |
 |---|---|---|
-| Service web | Starter | ~7 $/mois |
-| PostgreSQL | Basic 256 Mo | ~7 $/mois |
-| Disque média 1 Go | inclus | ~0,25 $/mois |
+| Service web | free — s'endort après 15 min | Starter ~7 $/mois |
+| PostgreSQL | free — effacé après 30 j | Basic 256 Mo ~7 $/mois |
+| Disque média 1 Go | *(indisponible en gratuit)* | inclus ~0,25 $/mois |
+| **Total** | **0 $** | **~14 $/mois** |
 
-Des plans **gratuits** existent pour tester, mais : le web s'endort après
-15 min d'inactivité (réveil lent) et la base gratuite est supprimée au bout
-de 30 jours. À éviter pour un site livré à un client.
+`render.yaml` est livré en version **gratuite**. Voir §8 pour basculer en
+production.

@@ -1,57 +1,71 @@
-# Blueprint Render — crée le service web + la base PostgreSQL + le disque média.
+# Blueprint Render — VERSION GRATUITE (phase de test / démo).
 # Doc : https://render.com/docs/blueprint-spec
+#
+# Limites du gratuit :
+#   - le site s'endort après 15 min sans visite (réveil ~50 s)
+#   - la base de données est SUPPRIMÉE au bout de 30 jours
+#   - pas de disque persistant : les images uploadées sont perdues à chaque
+#     redéploiement (les disques exigent un plan payant)
+#
+# >>> POUR PASSER EN PRODUCTION : voir les lignes marquées "PROD" ci-dessous.
+
 databases:
   - name: koyra-db
     databaseName: koyra_db
     user: koyra
-    plan: basic-256mb          # ~7 $/mois (le plan gratuit expire au bout de 30 j)
+    plan: free                  # PROD : "basic-256mb" (~7 $/mois, pas d'expiration)
 
 services:
   - type: web
     name: koyra
     runtime: python
-    plan: starter               # ~7 $/mois : le site ne s'endort pas
+    plan: free                  # PROD : "starter" (~7 $/mois, ne s'endort pas)
     region: frankfurt
     buildCommand: "./build.sh"
     startCommand: "gunicorn koyra_web.wsgi:application"
     healthCheckPath: /
-    disk:
-      name: koyra-media
-      mountPath: /var/media      # images uploadées (marques, catégories, produits)
-      sizeGB: 1
+
+    # PROD : décommenter pour conserver les images uploadées (nécessite plan payant)
+    # disk:
+    #   name: koyra-media
+    #   mountPath: /var/media
+    #   sizeGB: 1
+
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.6"
       - key: SECRET_KEY
-        generateValue: true
+        generateValue: true       # Render invente une clé aléatoire : rien à faire
       - key: DEBUG
         value: "false"
       - key: DATABASE_URL
-        fromDatabase:
+        fromDatabase:             # Render relie automatiquement à koyra-db
           name: koyra-db
           property: connectionString
       - key: DB_SSL_REQUIRE
         value: "true"
       - key: ALLOWED_HOSTS
         value: ".onrender.com"
-      - key: MEDIA_ROOT
-        value: "/var/media"
+      # PROD : avec le disque, ajouter  { key: MEDIA_ROOT, value: "/var/media" }
       - key: SECURE_SSL_REDIRECT
         value: "true"
-      # --- E-mail (à compléter dans le dashboard Render, valeurs sensibles) ---
+
+      # --- E-mail (Gmail) : à renseigner pendant l'Apply ou plus tard ---------
+      # Laisser vide pour l'instant si le compte Gmail n'est pas prêt : le
+      # formulaire de contact enregistre quand même les messages dans l'admin.
       - key: EMAIL_BACKEND
         value: "django.core.mail.backends.smtp.EmailBackend"
       - key: EMAIL_HOST
-        sync: false
+        value: "smtp.gmail.com"
       - key: EMAIL_PORT
         value: "587"
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
       - key: EMAIL_USE_TLS
         value: "true"
+      - key: EMAIL_HOST_USER
+        sync: false               # adresse Gmail complète
+      - key: EMAIL_HOST_PASSWORD
+        sync: false               # mot de passe d'application (16 lettres)
       - key: DEFAULT_FROM_EMAIL
-        sync: false
+        sync: false               # ex. Koyra Distribution <...@gmail.com>
       - key: CONTACT_NOTIFICATION_EMAIL
-        sync: false
+        sync: false               # adresse qui reçoit les messages du formulaire

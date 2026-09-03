@@ -14,6 +14,8 @@ databases:
     databaseName: koyra_db
     user: koyra
     plan: free                  # PROD : "basic-256mb" (~7 $/mois, pas d'expiration)
+    region: frankfurt           # DOIT être la même région que le service web
+                                # (sinon l'hôte interne dpg-... ne résout pas)
 
 services:
   - type: web

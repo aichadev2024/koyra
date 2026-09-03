@@ -86,8 +86,10 @@ Enregistrer → Render redéploie.
 
 Via une page d'installation à usage unique (pas besoin du Shell).
 
-1. Render → service **koyra** → onglet **Environment** → copier la valeur de
-   `ADMIN_SETUP_TOKEN` (générée automatiquement).
+1. Render → service **koyra** → onglet **Environment** → définir
+   `ADMIN_SETUP_TOKEN` avec une valeur **URL-safe** (lettres + chiffres,
+   ~40 caractères) — ex. `python -c "import secrets;print(secrets.token_hex(24))"`.
+   Éviter `generateValue` : le base64 de Render contient `/ + =` et casse l'URL.
 2. Ouvrir `https://koyra.onrender.com/installation/<jeton>/`.
 3. Choisir un identifiant + un mot de passe → le compte est créé et la
    session ouverte, redirection vers `/admin/`.

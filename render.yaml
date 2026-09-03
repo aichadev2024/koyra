@@ -74,8 +74,11 @@ services:
         sync: false               # adresse qui reçoit les messages du formulaire
 
       # --- Page d'installation du 1er compte admin -------------------------
-      # Render génère un jeton aléatoire. URL : /installation/<jeton>/
-      # (active seulement tant qu'aucun admin n'existe). À lire dans l'onglet
-      # Environment après le déploiement.
+      # URL : /installation/<jeton>/ (active seulement tant qu'aucun admin
+      # n'existe). À DÉFINIR à la main dans l'onglet Environment avec une
+      # valeur URL-safe : lettres + chiffres uniquement, ~40 caractères
+      # (ex.  openssl rand -hex 24  ou  python -c "import secrets;print(secrets.token_hex(24))").
+      # NE PAS utiliser generateValue : Render produit du base64 (avec / + =)
+      # qui casse l'URL.
       - key: ADMIN_SETUP_TOKEN
-        generateValue: true
+        sync: false

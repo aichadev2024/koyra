@@ -177,14 +177,39 @@ MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(BASE_DIR, 'media'))
 # --- Stockage des images produits ------------------------------------
 # Sur l'offre gratuite de Render le disque est éphémère : sans stockage
 # externe (ou disque payant) les images téléversées finissent par
-# disparaître. Ordre de priorité : S3 -> Cloudinary -> disque local.
-#
-# 1) S3 / compatible S3 (Backblaze B2, Cloudflare R2, Scaleway, Wasabi,
-#    Supabase, MinIO, AWS…). Fonctionne avec n'importe quel fournisseur.
+# disparaître. Priorité : Firebase/GCS -> S3 -> Cloudinary -> disque local.
+GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME', '')          # <projet>.firebasestorage.app
 S3_ENDPOINT_URL = os.getenv('S3_ENDPOINT_URL', '')
 CLOUDINARY_URL = os.getenv('CLOUDINARY_URL', '')
 
-if S3_ENDPOINT_URL:
+# 1) Firebase Storage (= bucket Google Cloud Storage)
+if GS_BUCKET_NAME:
+    import json as _json
+    from google.oauth2 import service_account as _sa
+
+    _raw = os.getenv('GS_CREDENTIALS_JSON', '')
+    try:
+        _info = _json.loads(_raw)
+    except _json.JSONDecodeError:
+        import base64 as _b64
+        _info = _json.loads(_b64.b64decode(_raw))
+
+    from datetime import timedelta as _td
+
+    INSTALLED_APPS += ['storages']
+    STORAGES['default'] = {'BACKEND': 'storages.backends.gcloud.GoogleCloudStorage'}
+    GS_CREDENTIALS = _sa.Credentials.from_service_account_info(_info)
+    GS_PROJECT_ID = _info.get('project_id')
+    GS_DEFAULT_ACL = None
+    # Le bucket reste privé : on sert des URLs signées (aucun réglage de
+    # permission à faire côté Firebase). Régénérées à chaque rendu de page.
+    GS_QUERYSTRING_AUTH = True
+    GS_EXPIRATION = _td(hours=24)
+    GS_FILE_OVERWRITE = False
+    GS_LOCATION = 'media'
+
+# 2) S3 / compatible S3 (Backblaze B2, Cloudflare R2, Wasabi, MinIO, AWS…)
+elif S3_ENDPOINT_URL:
     INSTALLED_APPS += ['storages']
     STORAGES['default'] = {'BACKEND': 'storages.backends.s3.S3Storage'}
     AWS_S3_ENDPOINT_URL = S3_ENDPOINT_URL
@@ -199,7 +224,7 @@ if S3_ENDPOINT_URL:
     AWS_DEFAULT_ACL = None
     AWS_LOCATION = 'media'
 
-# 2) Cloudinary  (format : cloudinary://<api_key>:<api_secret>@<cloud_name>)
+# 3) Cloudinary  (format : cloudinary://<api_key>:<api_secret>@<cloud_name>)
 elif CLOUDINARY_URL:
     INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
     STORAGES['default'] = {

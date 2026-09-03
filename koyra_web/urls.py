@@ -24,9 +24,9 @@ urlpatterns = [
     path('', include('catalogue.urls')),
 ]
 
-# Sans Cloudinary, on sert /media/ nous-mêmes (dev, ou plan payant avec disque).
-# Avec Cloudinary, les images ont une URL externe : rien à router ici.
-if not settings.CLOUDINARY_URL:
+# Sans stockage externe, on sert /media/ nous-mêmes (dev, ou plan payant
+# avec disque). Avec S3 / Cloudinary, les images ont une URL externe.
+if not (settings.S3_ENDPOINT_URL or settings.CLOUDINARY_URL):
     urlpatterns += [
         re_path(r'^media/(?P<path>.*)$', media_serve,
                 {'document_root': settings.MEDIA_ROOT}),

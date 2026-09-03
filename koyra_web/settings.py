@@ -174,12 +174,33 @@ MEDIA_URL = '/media/'
 # En local : dossier BASE_DIR/media. Sur un plan payant : disque persistant.
 MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(BASE_DIR, 'media'))
 
-# --- Images produits : Cloudinary si CLOUDINARY_URL est défini ---------
-# Format : cloudinary://<api_key>:<api_secret>@<cloud_name>
-# Sur l'offre gratuite de Render le disque est éphémère : sans Cloudinary
-# (ou disque payant) les images téléversées finissent par disparaître.
+# --- Stockage des images produits ------------------------------------
+# Sur l'offre gratuite de Render le disque est éphémère : sans stockage
+# externe (ou disque payant) les images téléversées finissent par
+# disparaître. Ordre de priorité : S3 -> Cloudinary -> disque local.
+#
+# 1) S3 / compatible S3 (Backblaze B2, Cloudflare R2, Scaleway, Wasabi,
+#    Supabase, MinIO, AWS…). Fonctionne avec n'importe quel fournisseur.
+S3_ENDPOINT_URL = os.getenv('S3_ENDPOINT_URL', '')
 CLOUDINARY_URL = os.getenv('CLOUDINARY_URL', '')
-if CLOUDINARY_URL:
+
+if S3_ENDPOINT_URL:
+    INSTALLED_APPS += ['storages']
+    STORAGES['default'] = {'BACKEND': 'storages.backends.s3.S3Storage'}
+    AWS_S3_ENDPOINT_URL = S3_ENDPOINT_URL
+    AWS_ACCESS_KEY_ID = os.getenv('S3_ACCESS_KEY_ID', '')
+    AWS_SECRET_ACCESS_KEY = os.getenv('S3_SECRET_ACCESS_KEY', '')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET_NAME', '')
+    AWS_S3_REGION_NAME = os.getenv('S3_REGION', '') or None
+    AWS_S3_ADDRESSING_STYLE = os.getenv('S3_ADDRESSING_STYLE', 'virtual')
+    AWS_S3_CUSTOM_DOMAIN = os.getenv('S3_CUSTOM_DOMAIN', '') or None
+    AWS_QUERYSTRING_AUTH = False        # URLs publiques, sans signature
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_LOCATION = 'media'
+
+# 2) Cloudinary  (format : cloudinary://<api_key>:<api_secret>@<cloud_name>)
+elif CLOUDINARY_URL:
     INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
     STORAGES['default'] = {
         'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',

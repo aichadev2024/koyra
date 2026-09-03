@@ -105,23 +105,44 @@ Ensuite, les comptes suivants se créent depuis l'admin :
 
 ---
 
-## 6. Images produits — Cloudinary (obligatoire sur l'offre gratuite)
+## 6. Images produits — stockage externe (obligatoire sur l'offre gratuite)
 
 Le disque de Render (offre gratuite) est **éphémère** : les images
-téléversées disparaissent au redéploiement et à la mise en veille. On les
-stocke donc sur **Cloudinary** (offre gratuite : 25 Go, CDN).
+téléversées disparaissent au redéploiement et à la mise en veille. Il faut
+un stockage **compatible S3**. Fournisseurs avec offre gratuite :
 
-1. Créer un compte sur https://cloudinary.com (gratuit).
-2. Dashboard Cloudinary → **API Keys** → copier l'**API Environment variable**,
-   de la forme `CLOUDINARY_URL=cloudinary://123...:abc...@mon-cloud`.
-3. Render → service **koyra** → **Environment** → ajouter `CLOUDINARY_URL`
-   avec cette valeur (sans le `CLOUDINARY_URL=` devant). Save → redéploie.
-4. Dans l'admin, **re-téléverser** les images des produits déjà créés
-   (les anciennes, stockées sur le disque éphémère, sont perdues).
+| Fournisseur | Gratuit | Remarque |
+|---|---|---|
+| **Backblaze B2** | 10 Go | pas de carte bancaire ; recommandé |
+| **Cloudflare R2** | 10 Go | carte à enregistrer (non débitée sous la limite) |
+| **Supabase Storage** | 1 Go | connexion via GitHub |
+| Scaleway / Wasabi | variable | — |
+| Cloudinary | 25 Go | ⚠️ **indisponible depuis plusieurs pays** |
 
-Ensuite, tout `ImageField` est envoyé sur Cloudinary automatiquement et
-servi via son CDN. Sans `CLOUDINARY_URL`, le site sert `/media/` localement
-(utile en dev, ou sur un plan payant avec disque).
+### Exemple avec Backblaze B2
+
+1. Créer un compte sur https://www.backblaze.com/b2/sign-up.html
+2. **Buckets → Create a Bucket** : nom `koyra-media`, **Files in Bucket are: Public**.
+3. **App Keys → Add a New Application Key** : autoriser ce bucket, en
+   lecture/écriture. Noter **keyID**, **applicationKey** et l'**Endpoint**
+   du bucket (ex. `s3.eu-central-003.backblazeb2.com`).
+4. Render → service **koyra** → **Environment** → ajouter :
+
+   | Variable | Valeur |
+   |---|---|
+   | `S3_ENDPOINT_URL` | `https://s3.eu-central-003.backblazeb2.com` |
+   | `S3_ACCESS_KEY_ID` | le *keyID* |
+   | `S3_SECRET_ACCESS_KEY` | l'*applicationKey* |
+   | `S3_BUCKET_NAME` | `koyra-media` |
+   | `S3_REGION` | `eu-central-003` |
+
+   Save → redéploie.
+5. Dans l'admin, **re-téléverser** les images des fiches déjà créées
+   (les anciennes, sur le disque éphémère, sont perdues).
+
+Ensuite, tout `ImageField` est envoyé sur le bucket et servi par son URL
+publique. Sans ces variables, le site sert `/media/` localement (dev, ou
+plan payant avec disque).
 
 ---
 
@@ -175,7 +196,7 @@ Voir `.env.example`. Les principales en production :
 | `ALLOWED_HOSTS` | domaines autorisés | `.onrender.com,...` |
 | `DATABASE_URL` | connexion PostgreSQL | *(généré par Render)* |
 | `DB_SSL_REQUIRE` | SSL vers la base | `true` |
-| `CLOUDINARY_URL` | stockage des images | `cloudinary://…` (voir §6) |
+| `S3_ENDPOINT_URL` + `S3_ACCESS_KEY_ID` + `S3_SECRET_ACCESS_KEY` + `S3_BUCKET_NAME` + `S3_REGION` | stockage des images | *(voir §6)* |
 | `MEDIA_ROOT` | dossier des images (si disque payant) | `/var/media` |
 | `SECURE_SSL_REDIRECT` | forcer HTTPS | `true` |
 | `EMAIL_*`, `DEFAULT_FROM_EMAIL`, `CONTACT_NOTIFICATION_EMAIL` | envoi des e-mails | *(voir §4)* |

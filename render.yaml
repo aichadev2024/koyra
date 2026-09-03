@@ -83,8 +83,19 @@ services:
       - key: ADMIN_SETUP_TOKEN
         sync: false
 
-      # --- Stockage des images produits (Cloudinary, offre gratuite) -------
-      # cloudinary://<api_key>:<api_secret>@<cloud_name>  (dashboard Cloudinary)
+      # --- Stockage des images produits (compatible S3) -------------------
       # Indispensable sur le plan gratuit : le disque de Render est éphémère.
-      - key: CLOUDINARY_URL
+      # Fournisseur au choix : Backblaze B2, Cloudflare R2, Scaleway,
+      # Wasabi, Supabase Storage, AWS S3… Renseigner ces variables dans
+      # l'onglet Environment (valeurs du dashboard du fournisseur).
+      - key: S3_ENDPOINT_URL
+        sync: false        # ex. https://s3.eu-central-003.backblazeb2.com
+      - key: S3_ACCESS_KEY_ID
         sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: S3_BUCKET_NAME
+        sync: false
+      - key: S3_REGION
+        sync: false        # ex. eu-central-003  (laisser vide si inutile)
+      # Alternative : CLOUDINARY_URL (mais indisponible depuis certains pays).

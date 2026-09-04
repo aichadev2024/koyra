@@ -1,0 +1,469 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<title>Intégration Firebase Storage</title>
+
+<style>
+  :root{
+    --bg:#FBFAF7; --surface:#FFFFFF; --surface-2:#F4F3EC;
+    --ink:#1F241E; --ink-2:#585E54; --ink-3:#8A8F82;
+    --line:#E4E3DB; --line-strong:#D2D1C6;
+    --accent:#2E5A27; --accent-ink:#20401C; --accent-soft:#EAF1E5;
+    --ok:#2F7D32; --warn:#9A6400; --warn-soft:#FBF0DD; --danger:#B23A2E; --danger-soft:#FBE9E6;
+    --shadow:0 1px 2px rgba(31,36,30,.04), 0 10px 26px rgba(31,36,30,.06);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#14160F; --surface:#1C1F16; --surface-2:#22261B;
+      --ink:#ECEAD9; --ink-2:#A6A28C; --ink-3:#7C7A67;
+      --line:#33362A; --line-strong:#43473A;
+      --accent:#AAC79F; --accent-ink:#C7DCBE; --accent-soft:#232A1D;
+      --ok:#8CC98F; --warn:#E0B473; --warn-soft:#2B2416; --danger:#E39B90; --danger-soft:#2C1D1A;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 14px 34px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14160F; --surface:#1C1F16; --surface-2:#22261B;
+    --ink:#ECEAD9; --ink-2:#A6A28C; --ink-3:#7C7A67;
+    --line:#33362A; --line-strong:#43473A;
+    --accent:#AAC79F; --accent-ink:#C7DCBE; --accent-soft:#232A1D;
+    --ok:#8CC98F; --warn:#E0B473; --warn-soft:#2B2416; --danger:#E39B90; --danger-soft:#2C1D1A;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 14px 34px rgba(0,0,0,.4);
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size:16px; line-height:1.68;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+  .page{max-width:1180px; margin:0 auto; padding:clamp(1.5rem,4vw,3rem) clamp(1.15rem,4vw,2.5rem) 5rem}
+
+  h1,h2,h3{font-family:"Spectral", Georgia, serif; font-weight:600; line-height:1.2; text-wrap:balance; margin:0}
+  h1{font-size:clamp(1.8rem,1.4rem + 1.7vw,2.4rem); letter-spacing:-.01em}
+  h2{font-size:1.3rem; margin-bottom:.35rem}
+  h3{font-size:1.02rem; font-weight:600; margin:1.75rem 0 .5rem; font-family:"IBM Plex Sans",sans-serif; letter-spacing:.01em}
+  p{margin:0 0 1rem; max-width:66ch}
+  a{color:var(--accent); text-underline-offset:2px}
+  strong{font-weight:600}
+
+  .lede{font-size:1.075rem; color:var(--ink-2); max-width:64ch}
+  .kicker{font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3)}
+
+  /* layout with TOC rail */
+  .shell{display:block}
+  @media (min-width:1080px){
+    .shell{display:grid; grid-template-columns:190px minmax(0,1fr); gap:3rem; align-items:start}
+    .toc{position:sticky; top:1.5rem}
+  }
+  .toc{font-size:.85rem; line-height:1.5}
+  .toc ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.15rem}
+  .toc a{display:flex; gap:.55rem; color:var(--ink-2); text-decoration:none; padding:.28rem .4rem; border-radius:6px}
+  .toc a:hover{color:var(--ink); background:var(--surface-2)}
+  .toc a b{font-family:"IBM Plex Mono",monospace; color:var(--ink-3); font-weight:400}
+  @media (max-width:1079px){ .toc{display:none} }
+
+  header.doc{border-bottom:1px solid var(--line); padding-bottom:1.75rem; margin-bottom:.5rem}
+  header.doc .kicker{margin-bottom:.7rem}
+  header.doc h1{margin-bottom:.6rem}
+
+  /* spec panel */
+  .spec{
+    margin-top:1.75rem; border:1px solid var(--line); border-radius:12px;
+    background:var(--surface); box-shadow:var(--shadow); overflow:hidden;
+  }
+  .spec dl{margin:0; display:grid; grid-template-columns:1fr}
+  @media (min-width:620px){ .spec dl{grid-template-columns:1fr 1fr} }
+  .spec div{display:flex; flex-direction:column; gap:.15rem; padding:.85rem 1.1rem; border-top:1px solid var(--line)}
+  .spec div:nth-child(-n+2){border-top:0}
+  @media (max-width:619px){ .spec div:nth-child(2){border-top:1px solid var(--line)} }
+  .spec dt{font-family:"IBM Plex Mono",monospace; font-size:.68rem; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3)}
+  .spec dd{margin:0; font-size:.94rem; font-weight:500}
+  .spec dd code{font-size:.85em}
+
+  section{padding-top:clamp(2.25rem,4.5vw,3.25rem); border-top:1px solid var(--line); margin-top:clamp(2.25rem,4.5vw,3.25rem)}
+  section:first-of-type{border-top:0; margin-top:2.25rem}
+  .sec-head{display:flex; align-items:baseline; gap:.7rem; margin-bottom:1rem}
+  .sec-head b{font-family:"IBM Plex Mono",monospace; font-size:.82rem; color:var(--accent); font-weight:500; flex:none}
+
+  ul,ol{margin:0 0 1rem; padding-left:1.3rem; max-width:66ch}
+  li{margin:.3rem 0}
+  li::marker{color:var(--ink-3)}
+
+  code{
+    font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.86em;
+    background:var(--surface-2); border:1px solid var(--line);
+    padding:.08em .38em; border-radius:5px; word-break:break-word;
+  }
+  pre{
+    margin:0 0 1.2rem; background:var(--surface); border:1px solid var(--line);
+    border-radius:10px; padding:1rem 1.1rem; overflow-x:auto; box-shadow:var(--shadow);
+  }
+  pre code{background:none; border:0; padding:0; font-size:.83rem; line-height:1.6; color:var(--ink)}
+  .c-com{color:var(--ink-3)}
+  .c-key{color:var(--accent); font-weight:500}
+  .c-str{color:var(--warn)}
+
+  .table-wrap{overflow-x:auto; margin:0 0 1.2rem; border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow)}
+  table{border-collapse:collapse; width:100%; font-size:.9rem; background:var(--surface)}
+  th,td{text-align:left; padding:.62rem .85rem; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-family:"IBM Plex Mono",monospace; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); font-weight:500; background:var(--surface-2)}
+  tr:last-child td{border-bottom:0}
+  td code{font-size:.82em}
+  .tag{display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:.72rem; padding:.1em .5em; border-radius:5px; border:1px solid var(--line-strong); color:var(--ink-2)}
+  .tag.ok{color:var(--ok); border-color:currentColor}
+  .tag.warn{color:var(--warn); border-color:currentColor}
+
+  .callout{border:1px solid var(--line); border-left:3px solid var(--accent); background:var(--surface); border-radius:8px; padding:.85rem 1.1rem; margin:0 0 1.2rem; box-shadow:var(--shadow)}
+  .callout p{margin:0; max-width:64ch; font-size:.94rem}
+  .callout p + p{margin-top:.5rem}
+  .callout .lbl{font-family:"IBM Plex Mono",monospace; font-size:.68rem; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:.3rem}
+  .callout.warn{border-left-color:var(--warn); background:var(--warn-soft)}
+  .callout.danger{border-left-color:var(--danger); background:var(--danger-soft)}
+
+  /* flow: storage decision chain */
+  .chain{display:flex; flex-direction:column; gap:.5rem; margin:0 0 1.4rem; max-width:60ch}
+  .chain .row{display:flex; align-items:center; gap:.7rem; flex-wrap:wrap}
+  .chain .cond{font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--ink-2)}
+  .chain .arr{color:var(--ink-3)}
+  .chain .dest{font-weight:600; padding:.25rem .7rem; border-radius:6px; border:1px solid var(--line-strong); background:var(--surface); font-size:.9rem}
+  .chain .dest.pick{border-color:var(--accent); color:var(--accent-ink); background:var(--accent-soft)}
+  .chain .fallthrough{color:var(--ink-3); font-size:.8rem; padding-left:.2rem}
+
+  /* flow: numbered runtime steps */
+  .flow{list-style:none; counter-reset:s; margin:0 0 1.2rem; padding:0; max-width:68ch; display:flex; flex-direction:column; gap:.65rem}
+  .flow li{counter-increment:s; display:grid; grid-template-columns:1.7rem 1fr; gap:.7rem; margin:0}
+  .flow li::before{content:counter(s); font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--accent); border:1px solid var(--line-strong); border-radius:6px; height:1.7rem; display:grid; place-items:center}
+  .flow li > div{padding-top:.15rem}
+  .flow code{font-size:.82em}
+
+  footer.doc{margin-top:3.5rem; padding-top:1.5rem; border-top:1px solid var(--line); color:var(--ink-3); font-size:.82rem}
+  footer.doc code{font-size:.9em}
+
+  .toggle{
+    position:fixed; top:14px; right:14px; z-index:20; width:36px; height:36px; border-radius:50%;
+    border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); cursor:pointer;
+    font-size:14px; display:grid; place-items:center; box-shadow:var(--shadow);
+  }
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+  @media (prefers-reduced-motion:reduce){ *{scroll-behavior:auto !important} }
+  html{scroll-behavior:smooth; scroll-padding-top:1.5rem}
+
+  @media print{
+    .toggle{display:none}
+    .toc{display:none}
+    .shell{display:block}
+    .page{max-width:none; padding:0}
+    pre,.table-wrap,.spec,.callout{box-shadow:none}
+    section{break-inside:avoid-page}
+    pre,.table-wrap{break-inside:avoid}
+  }
+</style>
+
+<button class="toggle" id="tg" type="button" aria-label="Basculer le thème">◐</button>
+
+<div class="page">
+  <header class="doc">
+    <p class="kicker">Projet koyra · stockage des médias</p>
+    <h1>Intégration Firebase Storage</h1>
+    <p class="lede">Où vont les images et documents téléversés dans l'admin, comment le code décide du stockage, et comment configurer, exploiter et dépanner Firebase Storage sur l'hébergement Render.</p>
+
+    <div class="spec">
+      <dl>
+        <div><dt>Fournisseur</dt><dd>Firebase Storage <span class="tag">= bucket Google Cloud Storage</span></dd></div>
+        <div><dt>Offre</dt><dd>Spark (gratuite) — ~5 Go stockés, ~1 Go / jour téléchargé</dd></div>
+        <div><dt>Backend Django</dt><dd><code>storages.backends.gcloud.GoogleCloudStorage</code></dd></div>
+        <div><dt>Emplacement des fichiers</dt><dd>bucket, sous le préfixe <code>media/</code></dd></div>
+        <div><dt>Type d'URL servie</dt><dd>URL signée V4, valable <strong>24 h</strong>, régénérée à chaque rendu</dd></div>
+        <div><dt>Développement local</dt><dd>inchangé — disque <code>koyra/media/</code>, servi par Django</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <div class="shell">
+    <nav class="toc" aria-label="Sommaire">
+      <ol>
+        <li><a href="#s1"><b>§1</b><span>Pourquoi Firebase</span></a></li>
+        <li><a href="#s2"><b>§2</b><span>La chaîne de stockage</span></a></li>
+        <li><a href="#s3"><b>§3</b><span>À l'exécution</span></a></li>
+        <li><a href="#s4"><b>§4</b><span>URLs signées</span></a></li>
+        <li><a href="#s5"><b>§5</b><span>Réglages settings.py</span></a></li>
+        <li><a href="#s6"><b>§6</b><span>Variables d'env</span></a></li>
+        <li><a href="#s7"><b>§7</b><span>Mise en place</span></a></li>
+        <li><a href="#s8"><b>§8</b><span>Dév. local</span></a></li>
+        <li><a href="#s9"><b>§9</b><span>Fichiers modifiés</span></a></li>
+        <li><a href="#s10"><b>§10</b><span>Quotas &amp; exploitation</span></a></li>
+        <li><a href="#s11"><b>§11</b><span>Dépannage</span></a></li>
+        <li><a href="#s12"><b>§12</b><span>Migrer plus tard</span></a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="s1">
+        <div class="sec-head"><b>§1</b><h2>Pourquoi Firebase</h2></div>
+        <p>Sur l'offre gratuite de Render, le disque du serveur est <strong>éphémère</strong> : tout fichier téléversé dans l'admin disparaît au prochain redéploiement ou à la mise en veille. Il faut donc un stockage <strong>externe</strong>.</p>
+        <p>Cloudinary, envisagé d'abord, <strong>bloque les inscriptions depuis le Mali</strong>. Firebase Storage n'a pas cette restriction : c'est un service Google, disponible partout. Sous le capot, un « bucket » Firebase <em>est</em> un bucket Google Cloud Storage — un simple entrepôt de fichiers, qui accepte aussi bien les images que les PDF ou documents Word.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Critère</th><th>Firebase Storage</th></tr></thead>
+            <tbody>
+              <tr><td>Gratuit</td><td>~5 Go de stockage, ~1 Go / jour de téléchargement (offre Spark)</td></tr>
+              <tr><td>Carte bancaire</td><td>non requise pour Spark</td></tr>
+              <tr><td>Types de fichiers</td><td>quelconques — images <em>et</em> documents</td></tr>
+              <tr><td>Disponible au Mali</td><td>oui (Google)</td></tr>
+              <tr><td>Intégration Django</td><td>backend standard <code>django-storages</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="s2">
+        <div class="sec-head"><b>§2</b><h2>La chaîne de stockage</h2></div>
+        <p>Dans <code>koyra_web/settings.py</code>, un bloc unique choisit le stockage par défaut de Django selon les <strong>variables d'environnement présentes</strong>. Le premier fournisseur configuré gagne ; sinon on retombe sur le disque local.</p>
+
+        <div class="chain" role="img" aria-label="Ordre de priorité : Firebase si GS_BUCKET_NAME, sinon S3, sinon Cloudinary, sinon disque local">
+          <div class="row"><span class="cond">GS_BUCKET_NAME défini&nbsp;?</span><span class="arr">→</span><span class="dest pick">Firebase Storage</span></div>
+          <div class="row"><span class="fallthrough">sinon &nbsp;</span><span class="cond">S3_ENDPOINT_URL défini&nbsp;?</span><span class="arr">→</span><span class="dest">S3 / compatible S3</span></div>
+          <div class="row"><span class="fallthrough">sinon &nbsp;</span><span class="cond">CLOUDINARY_URL défini&nbsp;?</span><span class="arr">→</span><span class="dest">Cloudinary</span></div>
+          <div class="row"><span class="fallthrough">sinon &nbsp;</span><span class="arr">→</span><span class="dest">disque local <code>MEDIA_ROOT</code></span></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Backend</th><th>Déclencheur</th><th>Rôle</th></tr></thead>
+            <tbody>
+              <tr><td>Firebase / GCS</td><td><code>GS_BUCKET_NAME</code></td><td>choix actuel en production</td></tr>
+              <tr><td>S3 (B2, R2, Wasabi…)</td><td><code>S3_ENDPOINT_URL</code></td><td>alternative prête, non utilisée</td></tr>
+              <tr><td>Cloudinary</td><td><code>CLOUDINARY_URL</code></td><td>indisponible depuis certains pays</td></tr>
+              <tr><td>Disque local</td><td>aucune variable</td><td>développement, ou Render payant + disque</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>En parallèle, <code>koyra_web/urls.py</code> ne branche la route qui sert <code>/media/…</code> depuis le disque <strong>que si aucun</strong> stockage externe n'est configuré. Avec Firebase, les fichiers ont une URL Google : rien ne transite par le serveur Django.</p>
+      </section>
+
+      <section id="s3">
+        <div class="sec-head"><b>§3</b><h2>Ce qui se passe à l'exécution</h2></div>
+
+        <h3>Au téléversement (admin)</h3>
+        <ol class="flow">
+          <li><div>Dans l'admin, on ajoute une image sur un produit et on enregistre.</div></li>
+          <li><div>Le champ <code>ImageField</code> appelle <code>save()</code> sur le stockage par défaut — ici <code>GoogleCloudStorage</code>.</div></li>
+          <li><div>Le backend authentifie l'appel avec la <strong>clé de compte de service</strong> et envoie les octets vers <code>gs://&lt;bucket&gt;/media/produits/&lt;nom-fichier&gt;</code>.</div></li>
+          <li><div>Le chemin relatif (<code>produits/photo.jpg</code>) est enregistré en base ; le préfixe <code>media/</code> est ajouté par <code>GS_LOCATION</code>.</div></li>
+        </ol>
+
+        <h3>À l'affichage (site public)</h3>
+        <ol class="flow">
+          <li><div>Le gabarit rend <code>{{ produit.image.url }}</code>.</div></li>
+          <li><div>Le backend fabrique une <strong>URL signée V4</strong> : <code>https://storage.googleapis.com/&lt;bucket&gt;/media/produits/photo.jpg?X-Goog-Algorithm=…&amp;X-Goog-Signature=…</code>, valable 24 h.</div></li>
+          <li><div>Le navigateur du visiteur charge l'image <strong>directement chez Google</strong>, sans passer par Render.</div></li>
+          <li><div>Au prochain rendu de la page, une <strong>nouvelle</strong> URL signée de 24 h est produite. Le site sert donc toujours un lien valide, même si le précédent a expiré.</div></li>
+        </ol>
+      </section>
+
+      <section id="s4">
+        <div class="sec-head"><b>§4</b><h2>Les URLs signées</h2></div>
+        <p>Rendre un bucket Firebase lisible publiquement demande de désactiver plusieurs protections Google (accès uniforme, <em>public access prevention</em>) — fragile, et facile à rater. On sert donc des <strong>URLs signées</strong> : le backend signe chaque lien avec la clé privée du compte de service.</p>
+        <ul>
+          <li><strong>Aucun réglage</strong> côté Firebase / Google Cloud : ni règles Storage, ni IAM. Seule la clé compte.</li>
+          <li>Le bucket <strong>reste privé</strong> : sans lien signé émis par le site, un fichier n'est pas accessible.</li>
+          <li>Expiration <strong>24 h</strong> (<code>GS_EXPIRATION</code>). Comme les pages sont rendues côté serveur à chaque visite, le lien est toujours frais au moment où le navigateur le suit.</li>
+        </ul>
+        <div class="callout warn">
+          <span class="lbl">Conséquence</span>
+          <p>Ne pas <strong>copier ni mettre en cache</strong> ces URLs ailleurs (e-mail, flux RSS, export figé) : elles cessent de fonctionner après 24 h. Pour un lien durable vers un fichier, il faudra passer par un accès public au bucket ou un domaine personnalisé.</p>
+        </div>
+      </section>
+
+      <section id="s5">
+        <div class="sec-head"><b>§5</b><h2>Les réglages dans settings.py</h2></div>
+        <p>Branche activée dès que <code>GS_BUCKET_NAME</code> est présent :</p>
+        <pre><code><span class="c-com"># 1) Firebase Storage (= bucket Google Cloud Storage)</span>
+<span class="c-key">if</span> GS_BUCKET_NAME:
+    _raw = os.getenv(<span class="c-str">'GS_CREDENTIALS_JSON'</span>, <span class="c-str">''</span>)
+    <span class="c-key">try</span>:
+        _info = json.loads(_raw)              <span class="c-com"># JSON brut</span>
+    <span class="c-key">except</span> json.JSONDecodeError:
+        _info = json.loads(base64.b64decode(_raw))  <span class="c-com"># ou base64</span>
+
+    INSTALLED_APPS += [<span class="c-str">'storages'</span>]
+    STORAGES[<span class="c-str">'default'</span>] = {<span class="c-str">'BACKEND'</span>: <span class="c-str">'storages.backends.gcloud.GoogleCloudStorage'</span>}
+    GS_CREDENTIALS   = service_account.Credentials.from_service_account_info(_info)
+    GS_PROJECT_ID    = _info.get(<span class="c-str">'project_id'</span>)
+    GS_DEFAULT_ACL   = <span class="c-key">None</span>
+    GS_QUERYSTRING_AUTH = <span class="c-key">True</span>          <span class="c-com"># -> URLs signées</span>
+    GS_EXPIRATION    = timedelta(hours=<span class="c-str">24</span>)
+    GS_FILE_OVERWRITE = <span class="c-key">False</span>
+    GS_LOCATION      = <span class="c-str">'media'</span></code></pre>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Réglage</th><th>Valeur</th><th>Effet</th></tr></thead>
+            <tbody>
+              <tr><td><code>STORAGES['default']</code></td><td><code>GoogleCloudStorage</code></td><td>tout <code>FileField</code> / <code>ImageField</code> passe par le bucket</td></tr>
+              <tr><td><code>GS_CREDENTIALS</code></td><td>objet clé de service</td><td>authentifie les envois et signe les URLs</td></tr>
+              <tr><td><code>GS_LOCATION</code></td><td><code>'media'</code></td><td>préfixe de tous les fichiers dans le bucket</td></tr>
+              <tr><td><code>GS_QUERYSTRING_AUTH</code></td><td><code>True</code></td><td>génère des liens signés plutôt que publics</td></tr>
+              <tr><td><code>GS_EXPIRATION</code></td><td><code>timedelta(hours=24)</code></td><td>durée de validité d'un lien signé</td></tr>
+              <tr><td><code>GS_FILE_OVERWRITE</code></td><td><code>False</code></td><td>deux fichiers de même nom → suffixe auto, pas d'écrasement</td></tr>
+              <tr><td><code>GS_DEFAULT_ACL</code></td><td><code>None</code></td><td>aucune ACL posée (accès géré par la signature)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="s6">
+        <div class="sec-head"><b>§6</b><h2>Les deux variables d'environnement</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Variable</th><th>Contenu</th><th>Où la trouver</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>GS_BUCKET_NAME</code></td>
+                <td>nom du bucket, ex. <code>koyra-1a2b3.firebasestorage.app</code> (ou <code>…appspot.com</code>)</td>
+                <td>Console Firebase → <strong>Storage</strong>, affiché en haut de la page</td>
+              </tr>
+              <tr>
+                <td><code>GS_CREDENTIALS_JSON</code></td>
+                <td>tout le contenu du fichier <code>.json</code> de compte de service — <strong>JSON brut</strong> collé tel quel, <em>ou</em> ce même JSON encodé en <strong>base64</strong> (le code teste les deux)</td>
+                <td>Console Firebase → ⚙ <strong>Paramètres du projet</strong> → <strong>Comptes de service</strong> → <em>Générer une nouvelle clé privée</em></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>En production :</strong> onglet <strong>Environment</strong> du service <code>koyra</code> sur Render.
+        <strong>En local :</strong> fichier <code>.env</code> à la racine (voir <code>.env.example</code>) — laissées vides, le stockage reste local.</p>
+        <div class="callout">
+          <span class="lbl">Astuce base64</span>
+          <p>Si le collage multi-lignes du JSON pose problème sur Render, encoder d'abord : <code>base64 -w0 cle.json</code> (Linux/macOS) ou <code>[Convert]::ToBase64String([IO.File]::ReadAllBytes("cle.json"))</code> (PowerShell), puis coller la chaîne obtenue.</p>
+        </div>
+      </section>
+
+      <section id="s7">
+        <div class="sec-head"><b>§7</b><h2>Mise en place</h2></div>
+        <ol class="flow">
+          <li><div><strong>Créer le projet + le bucket.</strong> <a href="https://console.firebase.google.com">console.firebase.google.com</a> → <em>Ajouter un projet</em> → menu <strong>Créer → Storage → Commencer</strong> → emplacement (ex. <code>europe-west</code>) → mode <em>production</em>. Noter le nom du bucket.</div></li>
+          <li><div><strong>Ne rien changer aux règles Storage.</strong> Le bucket reste privé ; les URLs signées suffisent.</div></li>
+          <li><div><strong>Générer la clé.</strong> ⚙ <em>Paramètres du projet</em> → <em>Comptes de service</em> → <em>Générer une nouvelle clé privée</em> → un fichier <code>.json</code> se télécharge.</div></li>
+          <li><div><strong>Renseigner Render.</strong> Service <code>koyra</code> → <em>Environment</em> → ajouter <code>GS_BUCKET_NAME</code> et <code>GS_CREDENTIALS_JSON</code> → <em>Save</em> (redéploiement ~4–5 min, installation des bibliothèques Google).</div></li>
+          <li><div><strong>Re-téléverser les images existantes.</strong> Les fiches créées avant Firebase pointaient vers le disque éphémère : rouvrir chaque produit / marque / catégorie et remettre l'image.</div></li>
+        </ol>
+        <div class="callout">
+          <span class="lbl">Vérifier</span>
+          <p>Sur une fiche en ligne, inspecter la balise <code>&lt;img&gt;</code> : l'attribut <code>src</code> doit être <code>https://storage.googleapis.com/&lt;bucket&gt;/media/…?X-Goog-Signature=…</code>. Si oui, l'intégration fonctionne.</p>
+        </div>
+      </section>
+
+      <section id="s8">
+        <div class="sec-head"><b>§8</b><h2>Développement local</h2></div>
+        <p>Sans <code>GS_BUCKET_NAME</code> dans l'environnement, la chaîne (§2) retombe sur le disque : les fichiers vont dans <code>koyra/media/</code> et sont servis par Django via la route <code>/media/</code>. <code>python manage.py runserver</code> se comporte exactement comme avant l'intégration.</p>
+        <p>Pour tester Firebase <em>en local</em>, il suffit de mettre les deux variables dans le <code>.env</code> — le même code s'active alors.</p>
+      </section>
+
+      <section id="s9">
+        <div class="sec-head"><b>§9</b><h2>Fichiers modifiés</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Fichier</th><th>Changement</th></tr></thead>
+            <tbody>
+              <tr><td><code>koyra_web/settings.py</code></td><td>chaîne de stockage + branche Firebase (URLs signées 24 h, préfixe <code>media/</code>)</td></tr>
+              <tr><td><code>koyra_web/urls.py</code></td><td>route <code>/media/</code> locale seulement si aucun stockage externe</td></tr>
+              <tr><td><code>requirements.txt</code></td><td>+ <code>django-storages</code>, <code>google-cloud-storage</code>, <code>google-auth</code> (et leurs dépendances : <code>cryptography</code>, <code>protobuf</code>…)</td></tr>
+              <tr><td><code>render.yaml</code></td><td><code>GS_BUCKET_NAME</code> + <code>GS_CREDENTIALS_JSON</code> déclarées (<code>sync: false</code>)</td></tr>
+              <tr><td><code>.env.example</code></td><td>modèle des variables, avec les alternatives S3</td></tr>
+              <tr><td><code>DEPLOIEMENT.md</code></td><td>§6 : guide pas-à-pas Firebase</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Commits : <code>a6f1e71</code> (backend Firebase + URLs signées) et <code>23b5f56</code> (socle <code>django-storages</code> compatible S3).</p>
+      </section>
+
+      <section id="s10">
+        <div class="sec-head"><b>§10</b><h2>Quotas &amp; exploitation</h2></div>
+        <p>Offre <strong>Spark</strong> (gratuite), ordres de grandeur : <strong>5 Go</strong> stockés, <strong>1 Go / jour</strong> de téléchargement, plusieurs dizaines de milliers d'opérations par jour. Pour un catalogue, cela représente des milliers de photos et documents.</p>
+        <ul>
+          <li><strong>Suivi :</strong> Console Firebase → <em>Storage</em> → onglet <em>Usage</em>.</li>
+          <li><strong>Alerte :</strong> si le quota de téléchargement journalier est atteint, les images renvoient une erreur jusqu'au lendemain.</li>
+          <li><strong>Si ça déborde :</strong> passer le projet en <em>Blaze</em> (paiement à l'usage, quelques centimes par Go au-delà du gratuit) — aucun changement de code.</li>
+        </ul>
+      </section>
+
+      <section id="s11">
+        <div class="sec-head"><b>§11</b><h2>Dépannage</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Symptôme</th><th>Cause probable</th><th>Correctif</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Images OK en local, cassées en ligne</td>
+                <td><span class="tag warn">config</span> variables absentes sur Render</td>
+                <td>vérifier <code>GS_BUCKET_NAME</code> et <code>GS_CREDENTIALS_JSON</code> dans <em>Environment</em>, puis <em>Manual Deploy</em></td>
+              </tr>
+              <tr>
+                <td>Au démarrage : <code>ValueError</code> / <code>Could not deserialize key</code></td>
+                <td><span class="tag warn">clé</span> JSON tronqué ou mal collé</td>
+                <td>recoller <strong>tout</strong> le fichier <code>.json</code>, ou utiliser la version base64</td>
+              </tr>
+              <tr>
+                <td>Envoi d'image → <code>403</code> / <code>Forbidden</code></td>
+                <td><span class="tag warn">droits</span> compte de service sans accès Storage</td>
+                <td>utiliser la clé <strong>générée par Firebase</strong> (elle a le rôle Storage Admin), pas une clé GCP quelconque</td>
+              </tr>
+              <tr>
+                <td>Envoi → <code>404</code> / bucket introuvable</td>
+                <td><span class="tag warn">nom</span> <code>GS_BUCKET_NAME</code> erroné</td>
+                <td>copier le nom exact affiché dans Storage (<code>…firebasestorage.app</code> ou <code>…appspot.com</code>)</td>
+              </tr>
+              <tr>
+                <td><code>&lt;img&gt;</code> pointe vers <code>/media/…</code> et non Google</td>
+                <td><span class="tag warn">chaîne</span> branche Firebase non prise</td>
+                <td><code>GS_BUCKET_NAME</code> vide au démarrage — vérifier l'orthographe de la variable</td>
+              </tr>
+              <tr>
+                <td>Images qui marchaient → soudain <code>403</code></td>
+                <td><span class="tag warn">quota</span> plafond journalier de téléchargement atteint</td>
+                <td>attendre le reset, ou passer en Blaze</td>
+              </tr>
+              <tr>
+                <td>Build Render échoue après l'ajout</td>
+                <td><span class="tag warn">deps</span> bibliothèques Google manquantes</td>
+                <td>confirmer que <code>google-cloud-storage</code> est dans <code>requirements.txt</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="s12">
+        <div class="sec-head"><b>§12</b><h2>Migrer plus tard</h2></div>
+        <h3>Vers un disque persistant Render (offre payante)</h3>
+        <p>Décommenter le bloc <code>disk:</code> de <code>render.yaml</code>, définir <code>MEDIA_ROOT=/var/media</code>, <strong>retirer</strong> les variables <code>GS_*</code> — la chaîne (§2) repasse alors sur le disque. Les fichiers Firebase existants sont à re-téléverser (ou à copier via <code>gsutil</code>).</p>
+        <h3>Vers un autre fournisseur compatible S3</h3>
+        <p>Le socle est déjà là : renseigner <code>S3_ENDPOINT_URL</code>, <code>S3_ACCESS_KEY_ID</code>, <code>S3_SECRET_ACCESS_KEY</code>, <code>S3_BUCKET_NAME</code>, <code>S3_REGION</code> (Backblaze B2, Cloudflare R2, Supabase…). Retirer <code>GS_BUCKET_NAME</code> pour que S3 prenne la main.</p>
+        <h3>Récupérer les fichiers depuis Firebase</h3>
+        <p>Console Firebase → Storage (téléchargement fichier par fichier), ou en masse : <code>gsutil -m cp -r gs://&lt;bucket&gt;/media ./media</code>.</p>
+      </section>
+
+      <footer class="doc">
+        Référence interne — dépôt <code>github.com/aichadev2024/koyra</code>. Reflète l'état du code au commit <code>a6f1e71</code>.
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var r=document.documentElement, b=document.getElementById('tg'), K='koyra-fbdoc-theme';
+    try{var s=localStorage.getItem(K); if(s) r.setAttribute('data-theme',s);}catch(e){}
+    b.addEventListener('click',function(){
+      var cur=r.getAttribute('data-theme');
+      var next = cur==='dark' ? 'light' : (cur==='light' ? 'dark'
+                 : (matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark'));
+      r.setAttribute('data-theme',next);
+      try{localStorage.setItem(K,next);}catch(e){}
+    });
+  })();
+</script>

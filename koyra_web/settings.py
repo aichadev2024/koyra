@@ -219,7 +219,10 @@ elif S3_ENDPOINT_URL:
     AWS_S3_REGION_NAME = os.getenv('S3_REGION', '') or None
     AWS_S3_ADDRESSING_STYLE = os.getenv('S3_ADDRESSING_STYLE', 'virtual')
     AWS_S3_CUSTOM_DOMAIN = os.getenv('S3_CUSTOM_DOMAIN', '') or None
-    AWS_QUERYSTRING_AUTH = False        # URLs publiques, sans signature
+    # Bucket privé par défaut -> URLs signées (les buckets publics sont
+    # souvent payants). Mettre S3_SIGNED=false si le bucket est public.
+    AWS_QUERYSTRING_AUTH = env_bool('S3_SIGNED', True)
+    AWS_QUERYSTRING_EXPIRE = int(os.getenv('S3_URL_EXPIRE', '86400'))  # 24 h
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = None
     AWS_LOCATION = 'media'
